@@ -1,0 +1,15 @@
+# 1. Build the Docker image
+docker build -t react-gcp .
+
+# 2. Tag the image for Google Artifact Registry
+docker tag react-gcp:latest us-central1-docker.pkg.dev/oauthtest-449810/react-repo/react-gcp:latest
+
+# 3. Push the image to Artifact Registry
+docker push us-central1-docker.pkg.dev/oauthtest-449810/react-repo/react-gcp:latest
+
+# 4. Deploy to Cloud Run
+gcloud run deploy react-app \
+  --image=us-central1-docker.pkg.dev/oauthtest-449810/react-repo/react-gcp:latest \
+  --platform=managed \
+  --region=us-central1 \
+  --allow-unauthenticated
