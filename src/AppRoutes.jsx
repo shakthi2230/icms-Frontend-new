@@ -17,9 +17,13 @@ import TagRegister from "./pages/project-pages/completion-structure/TagRegister"
 import COMMregister from "./pages/project-pages/completion-structure/COMMregister";
 import { LogOut, LogIn } from "lucide-react";
 
-// Layout components
+// ===== Layout wrappers =====
 function LoginLayout({ title, config }) {
-  return <Layout title={title} config={config}><Outlet /></Layout>;
+  return (
+    <Layout title={title} config={config}>
+      <Outlet />
+    </Layout>
+  );
 }
 
 function HomeLayout() {
@@ -31,7 +35,12 @@ function HomeLayout() {
     ],
     footerItems: [{ label: "Logout", icon: LogOut, href: "#" }],
   };
-  return <Layout title="Home" config={homeConfig}><Outlet /></Layout>;
+
+  return (
+    <Layout title="Home" config={homeConfig}>
+      <Outlet />
+    </Layout>
+  );
 }
 
 function AdminLayout() {
@@ -40,127 +49,169 @@ function AdminLayout() {
     menuItems: [],
     footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
   };
-  return <Layout title="Administrator Dashboard" config={adminConfig}><Outlet /></Layout>;
+
+  return (
+    <Layout title="Administrator Dashboard" config={adminConfig}>
+      <Outlet />
+    </Layout>
+  );
 }
 
-function ProjectLayout({ type = "dashboard" }) {
-  let config;
-  if (type === "login") {
-    config = {
-      logo: { name: "IComS", href: "/", color: "yellow" },
-      menuItems: [],
-      footerItems: [{ label: "Logout", icon: LogOut, href: "#" }],
-    };
-  } else if (type === "dashboard") {
-    config = {
-      logo: { name: "IComS", href: "/project-dashboard", color: "yellow" },
-      menuItems: [
-        { label: "Check Lists & Certificates", icon: LogIn, href: "/checklist-certificates" },
+function ProjectLayout({ title, type = "dashboard" }) {
+  let config = {
+    logo: { name: "IComS", href: "/project-dashboard", color: "yellow" },
+    menuItems: [],
+    footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
+  };
+
+  switch (type) {
+    case "dashboard":
+      config.menuItems = [
+        { label: "Check Lists and Certificates", icon: LogIn, href: "/checklist-certificates" },
         { label: "Contractors", icon: LogIn, href: "/contractors" },
         { label: "System Structure", icon: LogIn, href: "/SystemStructure" },
         { label: "Completion Structure", icon: LogIn, href: "/completionStructure" },
-      ],
-      footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
-    };
-  } else if (type === "checklist") {
-    config = {
-      logo: { name: "IComS", href: "/project-dashboard", color: "yellow" },
-      menuItems: [{ label: "Imports & Reports", icon: LogIn, href: "/imports-reports" }],
-      footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
-    };
-  } else if (type === "completion") {
-    config = {
-      logo: { name: "IComS", href: "/project-dashboard", color: "yellow" },
-      menuItems: [
+      ];
+      break;
+    case "checklist":
+      config.menuItems = [
+        { label: "Imports & Reports", icon: LogIn, href: "/imports-reports" },
+      ];
+      break;
+    case "completion":
+      config.menuItems = [
         { label: "Punch Items", icon: LogIn, href: "/punchitems" },
         { label: "Check Lists", icon: LogIn, href: "/checklist" },
         { label: "Tag Register", icon: LogIn, href: "/tag-register" },
         { label: "COMM Systems", icon: LogIn, href: "/comm-register" },
         { label: "Imports & Reports", icon: LogIn, href: "/imports-reports" },
-      ],
-      footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
-    };
+      ];
+      break;
+    default:
+      break;
   }
-  return <Layout title={type.charAt(0).toUpperCase() + type.slice(1)} config={config}><Outlet /></Layout>;
+
+  return (
+    <Layout title={title} config={config}>
+      <Outlet />
+    </Layout>
+  );
 }
 
+// ===== Main Routing =====
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Home Route */}
+      {/* Home */}
       <Route path="/" element={<HomeLayout />}>
         <Route index element={<Home />} />
       </Route>
 
-      {/* Admin Routes */}
-      <Route path="/admin-login" element={
-        <LoginLayout
-          title="Admin Login"
-          config={{
-            logo: { name: "IComS", href: "/", color: "yellow" },
-            menuItems: [],
-            footerItems: [{ label: "Logout", icon: LogOut, href: "#" }],
-          }}
-        />
-      }>
+      {/* Admin */}
+      <Route
+        path="/admin-login"
+        element={
+          <LoginLayout
+            title="Admin Login"
+            config={{
+              logo: { name: "IComS", href: "/", color: "yellow" },
+              menuItems: [],
+              footerItems: [{ label: "Logout", icon: LogOut, href: "#" }],
+            }}
+          />
+        }
+      >
         <Route index element={<AdminLogin />} />
       </Route>
-      
+
       <Route path="/admin-dashboard" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
       </Route>
 
-      {/* Project Routes */}
-      <Route path="/project-login" element={
-        <LoginLayout
-          title="Project Login"
-          config={{
-            logo: { name: "IComS", href: "/", color: "yellow" },
-            menuItems: [],
-            footerItems: [{ label: "Logout", icon: LogOut, href: "#" }],
-          }}
-        />
-      }>
+      {/* Project */}
+      <Route
+        path="/project-login"
+        element={
+          <LoginLayout
+            title="Project Login"
+            config={{
+              logo: { name: "IComS", href: "/", color: "yellow" },
+              menuItems: [],
+              footerItems: [{ label: "Logout", icon: LogOut, href: "#" }],
+            }}
+          />
+        }
+      >
         <Route index element={<ProjectLogin />} />
       </Route>
-      
-      <Route path="/project-dashboard" element={<ProjectLayout type="dashboard" />}>
+
+      <Route
+        path="/project-dashboard"
+        element={<ProjectLayout title="Project Dashboard" type="dashboard" />}
+      >
         <Route index element={<ProjectDashboard />} />
       </Route>
-      
-      <Route path="/checklist-certificates" element={<ProjectLayout type="checklist" />}>
+
+      <Route
+        path="/checklist-certificates"
+        element={<ProjectLayout title="Check Lists and Certificates" type="checklist" />}
+      >
         <Route index element={<CheckListandCertificates />} />
       </Route>
-      
-      <Route path="/contractors" element={<ProjectLayout type="checklist" />}>
+
+      <Route
+        path="/contractors"
+        element={<ProjectLayout title="Contractors" type="checklist" />}
+      >
         <Route index element={<Contractors />} />
       </Route>
-      
-      <Route path="/SystemStructure" element={<ProjectLayout type="checklist" />}>
+
+      <Route
+        path="/SystemStructure"
+        element={<ProjectLayout title="System Structure" type="checklist" />}
+      >
         <Route index element={<SystemStructure />} />
       </Route>
-      
-      <Route path="/completionStructure" element={<ProjectLayout type="completion" />}>
+
+      <Route
+        path="/completionStructure"
+        element={<ProjectLayout title="Completion Structure" type="completion" />}
+      >
         <Route index element={<CompletionStructure />} />
       </Route>
-      
-      <Route path="/checklist" element={<ProjectLayout type="completion" />}>
+
+      <Route
+        path="/checklist"
+        element={<ProjectLayout title="Check Lists" type="completion" />}
+      >
         <Route index element={<CheckList />} />
       </Route>
-      
-      <Route path="/imports-reports" element={<ProjectLayout type="completion" />}>
+
+      <Route
+        path="/imports-reports"
+        element={<ProjectLayout title="Imports & Reports" type="completion" />}
+      >
         <Route index element={<ImportsReports />} />
       </Route>
-      
-      <Route path="/punchitems" element={<ProjectLayout type="completion" />}>
+
+      <Route
+        path="/punchitems"
+        element={<ProjectLayout title="Punch Items" type="completion" />}
+      >
         <Route index element={<PunchItems />} />
       </Route>
-      
-      <Route path="/tag-register" element={<ProjectLayout type="completion" />}>
+
+      <Route
+        path="/tag-register"
+        element={<ProjectLayout title="Tag Register" type="completion" />}
+      >
         <Route index element={<TagRegister />} />
       </Route>
-      
-      <Route path="/comm-register" element={<ProjectLayout type="completion" />}>
+
+      <Route
+        path="/comm-register"
+        element={<ProjectLayout title="COMM Systems" type="completion" />}
+      >
         <Route index element={<COMMregister />} />
       </Route>
     </Routes>
