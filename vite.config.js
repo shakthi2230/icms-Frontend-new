@@ -13,7 +13,7 @@ export default defineConfig({
       '.run.app', // allow Cloud Run hostnames
       'localhost'
     ],
-     base: '/icms-Frontend-new/',
+  
 
   }
 })
