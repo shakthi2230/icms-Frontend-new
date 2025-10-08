@@ -1,258 +1,153 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
-// New Import Form Component
-const NewImportForm = ({ onClose, onSubmit }) => {
+const EngineeringImport = () => {
+  const categories = [
+    "Cables",
+    "Circuits & Starters",
+    "Dummy Tags",
+    "Electrical Equipment",
+    "Fire and Gas",
+    "Function Block",
+    "Heat Trace Cables",
+    "HVAC",
+    "Instruments",
+    "Junction Boxes",
+    "Lines",
+    "Loops",
+    "Master Equipment",
+    "Piping Special Items",
+    "Safety",
+    "Signals",
+    "Telecom",
+    "TestPacks",
+    "ValidationError",
+    "Valves",
+  ];
+
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({
-    config: '',
-    engRegister: '',
-    cableName: '',
-    description: '',
+    configName: "",
+    description: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+    setShowForm(true);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
-    onSubmit(formData);
-    onClose();
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleSubmit = () => {
+    console.log("Form Submitted:", {
+      engRegister: selectedCategory,
+      ...formData,
+    });
+    setShowForm(false);
+    setFormData({ configName: "", description: "" });
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="max-w-md w-full">
-        {/* Form Card */}
-        <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
-          {/* Header */}
-          <div className="bg-gray-50 px-6 py-4 border-b border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-semibold text-gray-800">New Import</h2>
-                <p className="text-sm text-gray-600 mt-1">Create a new import configuration</p>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors duration-200"
-              >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+    <div className="flex flex-col h-screen bg-gray-100">
+  
+      {/* Main Section */}
+      <div className="flex flex-1">
+        {/* Sidebar */}
+        <div className="w-64 bg-white border-r border-gray-300 p-3">
+          <div className="flex space-x-2 mb-3">
+            <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500 text-sm">
+              New Import
+            </button>
+            <button className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-500 text-sm">
+              New Version
+            </button>
           </div>
 
-          <form onSubmit={handleSubmit}>
-            <div className="p-6 space-y-4">
-              {/* Config Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Configuration
-                </label>
-                <select
-                  name="config"
-                  value={formData.config}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                >
-                  <option value="">Select config or version</option>
-                  <option value="cables">Cables</option>
-                  <option value="dummyTags">Dummy Tags</option>
-                  <option value="electricalEquipment">Electrical Equipment</option>
-                  <option value="fireAndGas">Fire and Gas</option>
-                  <option value="functionBlocks">Function Blocks</option>
-                  <option value="hvacCables">HVAC Cables</option>
-                  <option value="instruments">Instruments</option>
-                  <option value="junctionBoxes">Junction Boxes</option>
-                  <option value="loops">Loops</option>
-                  <option value="masterEquipment">Master Equipment</option>
-                  <option value="pipingSpecialItems">Piping Special Items</option>
-                  <option value="safety">Safety</option>
-                  <option value="signals">Signals</option>
-                  <option value="telecom">Telecom</option>
-                  <option value="testPackageError">Test Package Error</option>
-                  <option value="valves">Valves</option>
-                </select>
-              </div>
+          <ul className="text-sm text-gray-700">
+            {categories.map((cat) => (
+              <li
+                key={cat}
+                onClick={() => handleCategoryClick(cat)}
+                className={`cursor-pointer px-2 py-1 rounded hover:bg-blue-100 ${
+                  selectedCategory === cat ? "bg-blue-50 font-medium" : ""
+                }`}
+              >
+                {cat}
+              </li>
+            ))}
+          </ul>
+        </div>
 
-              {/* Engineering Register Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Engineering Register *
+        {/* Right Panel */}
+        <div className="flex-1 flex items-center justify-center relative">
+          {!showForm && (
+            <p className="text-gray-500 text-sm">
+              Select a config or version in the tree to the left
+            </p>
+          )}
+
+          {/* Popup Form */}
+          {showForm && (
+            <div className="absolute bg-white shadow-lg border border-gray-300 rounded-md w-96 p-4">
+              <h3 className="text-sm font-semibold mb-3">New Import</h3>
+
+              <div className="mb-2">
+                <label className="text-xs font-medium text-gray-700">
+                  Eng Register *
                 </label>
                 <input
                   type="text"
-                  name="engRegister"
-                  value={formData.engRegister}
-                  onChange={handleChange}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                  placeholder="Enter engineering register"
-                  required
+                  value={selectedCategory}
+                  readOnly
+                  className="w-full mt-1 border border-gray-300 rounded px-2 py-1 text-sm bg-gray-100 cursor-not-allowed"
                 />
               </div>
 
-              {/* Cable Name Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Cable Name *
+              <div className="mb-2">
+                <label className="text-xs font-medium text-gray-700">
+                  Config Name *
                 </label>
-                <select
-                  name="cableName"
-                  value={formData.cableName}
+                <input
+                  type="text"
+                  name="configName"
+                  value={formData.configName}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
-                  required
-                >
-                  <option value="">Select cable</option>
-                  <option value="cable1">Cable 1</option>
-                  <option value="cable2">Cable 2</option>
-                  <option value="cable3">Cable 3</option>
-                </select>
+                  placeholder="Enter Config Name"
+                  className="w-full mt-1 border border-gray-300 rounded px-2 py-1 text-sm focus:ring focus:ring-blue-200"
+                />
               </div>
 
-              {/* Description Field */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+              <div className="mb-3">
+                <label className="text-xs font-medium text-gray-700">
                   Description
                 </label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200 resize-none"
                   placeholder="Enter description"
-                  rows={3}
-                />
+                  rows="4"
+                  className="w-full mt-1 border border-gray-300 rounded px-2 py-1 text-sm focus:ring focus:ring-blue-200"
+                ></textarea>
               </div>
-            </div>
 
-            {/* Form Actions */}
-            <div className="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={onClose}
-                className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-              >
-                Create Import
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-// Main Imports Reports Component
-function ImportsReports() {
-  const [currentView, setCurrentView] = useState('list'); // 'list' or 'form'
-  const [imports, setImports] = useState([]);
-  const currentDateTime = '05:24 PM IST on Tuesday, October 07, 2025';
-
-  const handleNewImport = () => {
-    setCurrentView('form');
-  };
-
-  const handleCloseForm = () => {
-    setCurrentView('list');
-  };
-
-  const handleSubmitForm = (formData) => {
-    // Add the new import to the list
-    const newImport = {
-      id: Date.now(),
-      ...formData,
-      createdAt: new Date().toISOString(),
-    };
-    setImports(prev => [newImport, ...prev]);
-  };
-
-  // Show form view
-  if (currentView === 'form') {
-    return <NewImportForm onClose={handleCloseForm} onSubmit={handleSubmitForm} />;
-  }
-
-  // Show list view
-  return (
-    <div className="p-6 bg-gray-50 min-h-screen">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Imports Reports</h1>
-          <p className="text-sm text-gray-600">Current Date and Time: {currentDateTime}</p>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-lg font-semibold text-gray-800">Import Operations</h2>
-            <button
-              onClick={handleNewImport}
-              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
-            >
-              + New Import
-            </button>
-          </div>
-          
-          {/* Imports List */}
-          {imports.length > 0 ? (
-            <div className="overflow-hidden shadow ring-1 ring-black ring-opacity-5 rounded-lg">
-              <table className="min-w-full divide-y divide-gray-300">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Config
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Eng Register
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Cable
-                    </th>
-                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Description
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {imports.map((item) => (
-                    <tr key={item.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {item.config}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {item.engRegister}
-                      </td>
-                      <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                        {item.cableName}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-900 max-w-xs truncate">
-                        {item.description || '-'}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No imports</h3>
-              <p className="mt-1 text-sm text-gray-500">Get started by creating a new import.</p>
-              <div className="mt-4">
+              <div className="flex justify-end space-x-2">
                 <button
-                  onClick={handleNewImport}
-                  className="inline-flex items-center px-3 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                  onClick={() => setShowForm(false)}
+                  className="px-3 py-1 text-sm border border-gray-300 rounded hover:bg-gray-100"
                 >
-                  + New Import
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmit}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded hover:bg-blue-500"
+                >
+                  OK
                 </button>
               </div>
             </div>
@@ -261,6 +156,6 @@ function ImportsReports() {
       </div>
     </div>
   );
-}
+};
 
-export default ImportsReports;
+export default EngineeringImport;
