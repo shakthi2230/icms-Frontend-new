@@ -84,7 +84,7 @@ const EngineeringImport = () => {
         </div>
 
         {/* Right Panel */}
-        <div className="flex-1 flex items-center justify-center relative">
+        <div className="flex-1 flex  justify-center relative">
           {!showForm && (
             <p className="text-gray-500 text-sm">
               Select a config or version in the tree to the left
