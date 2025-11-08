@@ -16,7 +16,46 @@ import PunchItems from "./pages/project-pages/completion-structure/PunchItems";
 import TagRegister from "./pages/project-pages/completion-structure/TagRegister";
 import COMMregister from "./pages/project-pages/completion-structure/COMMregister";
 import { LogOut, LogIn } from "lucide-react";
+import { lazy, Suspense } from 'react';
 
+// ===== Lazy Load Admin Pages =====
+const AddNewCompany = lazy(() => import('./pages/admin-pages/AddNewCompany'));
+const CreateNewUser = lazy(() => import('./pages/admin-pages/CreateNewUser'));
+const AddNewProject = lazy(() => import('./pages/admin-pages/AddNewProject'));
+const GenerateReport = lazy(() => import('./pages/admin-pages/GenerateReport'));
+
+// ===== Loading Component =====
+function LoadingSpinner() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-[#0f111a]">
+      <div className="text-center">
+        {/* Outer rotating ring */}
+        <div className="relative w-24 h-24 mx-auto mb-6">
+          <div className="absolute inset-0 border-4 border-yellow-400/20 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-transparent border-t-yellow-400 rounded-full animate-spin"></div>
+          <div className="absolute inset-2 border-4 border-transparent border-t-yellow-300 rounded-full animate-spin" style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}></div>
+          
+          {/* Inner pulsing dot */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-3 h-3 bg-yellow-400 rounded-full animate-pulse"></div>
+          </div>
+        </div>
+        
+        {/* Loading text with animated dots */}
+        <div className="flex items-center justify-center space-x-1">
+          <p className="text-yellow-400 text-lg font-semibold tracking-wide">Loading</p>
+          <div className="flex space-x-1">
+            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></span>
+          </div>
+        </div>
+        
+        <p className="text-blue-300 text-sm mt-2 opacity-75">Please wait...</p>
+      </div>
+    </div>
+  );
+}
 // ===== Layout wrappers =====
 function LoginLayout({ title, config }) {
   return (
@@ -45,8 +84,14 @@ function HomeLayout() {
 
 function AdminLayout() {
   const adminConfig = {
-    logo: { name: "IComS", href: "/", color: "yellow" },
-    menuItems: [],
+    logo: { name: "IComS", href: "/admin-dashboard", color: "yellow" },
+    menuItems: [
+      { label: "Dashboard", icon: LogIn, href: "/admin-dashboard" },
+      { label: "Add Company", icon: LogIn, href: "/admin-dashboard/add-company" },
+      { label: "Create User", icon: LogIn, href: "/admin-dashboard/create-user" },
+      { label: "Add Project", icon: LogIn, href: "/admin-dashboard/add-project" },
+      { label: "Generate Report", icon: LogIn, href: "/admin-dashboard/generate-report" },
+    ],
     footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
   };
 
@@ -107,7 +152,7 @@ export default function AppRoutes() {
         <Route index element={<Home />} />
       </Route>
 
-      {/* Admin */}
+      {/* Admin Login */}
       <Route
         path="/admin-login"
         element={
@@ -124,11 +169,44 @@ export default function AppRoutes() {
         <Route index element={<AdminLogin />} />
       </Route>
 
+      {/* Admin Dashboard - Nested Routes */}
       <Route path="/admin-dashboard" element={<AdminLayout />}>
         <Route index element={<AdminDashboard />} />
+        <Route
+          path="add-company"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <AddNewCompany />
+            </Suspense>
+          }
+        />
+        <Route
+          path="create-user"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <CreateNewUser />
+            </Suspense>
+          }
+        />
+        <Route
+          path="add-project"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <AddNewProject />
+            </Suspense>
+          }
+        />
+        <Route
+          path="generate-report"
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <GenerateReport />
+            </Suspense>
+          }
+        />
       </Route>
 
-      {/* Project */}
+      {/* Project Login */}
       <Route
         path="/project-login"
         element={
@@ -145,6 +223,7 @@ export default function AppRoutes() {
         <Route index element={<ProjectLogin />} />
       </Route>
 
+      {/* Project Dashboard */}
       <Route
         path="/project-dashboard"
         element={<ProjectLayout title="Project Dashboard" type="dashboard" />}
