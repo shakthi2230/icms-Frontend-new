@@ -4,7 +4,7 @@ import bgImage from "../assets/industry.jpg";
 function Home() {
   return (
     <div
-      className="relative w-full h-full overflow-hidden bg-fixed"
+      className="relative w-full h-full overflow-auto"
       style={{
         backgroundImage: `url(${bgImage})`,
         backgroundSize: "cover",
@@ -12,18 +12,23 @@ function Home() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      {/* Overlay to reduce image opacity */}
-      <div className="absolute inset-0 bg-gray-700 opacity-50"></div>
+      {/* Dark overlay */}
+      <div className="absolute inset-0 bg-gray-700/60"></div>
 
-      {/* Step-based welcome text */}
-      <div className="absolute top-5 right-5 z-10 text-right">
-        <h1 className="text-yellow-500 text-2xl md:text-3xl font-bold">
-          Welcome to&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        </h1>
+      {/* Main content container */}
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
 
-        <h2 className="text-white text-4xl md:text-3xl font-bold mt-1 ml-8">
-          ICMS
-        </h2>
+        {/* Welcome text block */}
+        <div className="text-right">
+          <h1 className="text-yellow-500 font-bold text-sm sm:text-base lg:text-lg">
+            Welcome to
+          </h1>
+
+          <h2 className="text-white font-bold text-lg sm:text-xl lg:text-2xl">
+            ICOMS
+          </h2>
+        </div>
+
       </div>
     </div>
   );
