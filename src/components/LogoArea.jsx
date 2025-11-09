@@ -15,9 +15,23 @@ export default function LogoArea({ logo }) {
             />
           </svg>
         </div>
-        <span className="ml-3 text-xl font-bold text-white">
-          <span className={`text-${logo.color}-500`}>{logo.name}</span>
-        </span>
+        <span className="ml-3 text-xl font-bold">
+  {/* First character with logo.color */}
+  <span className={`text-${logo.color}-500`}>
+    {logo.name.slice(0, 1)}
+  </span>
+
+  {/* 2nd + 3rd characters forced white */}
+  <span className="text-white">
+    {logo.name.slice(1, 3)}
+  </span>
+
+  {/* Remaining characters with logo.color */}
+  <span className={`text-${logo.color}-500`}>
+    {logo.name.slice(3)}
+  </span>
+</span>
+
       </a>
     </div>
   );

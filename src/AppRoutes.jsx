@@ -87,9 +87,9 @@ function AdminLayout() {
     logo: { name: "IComS", href: "/admin-dashboard", color: "yellow" },
     menuItems: [
       { label: "Dashboard", icon: LogIn, href: "/admin-dashboard" },
-      { label: "Add Company", icon: LogIn, href: "/admin-dashboard/add-company" },
-      { label: "Create User", icon: LogIn, href: "/admin-dashboard/create-user" },
-      { label: "Add Project", icon: LogIn, href: "/admin-dashboard/add-project" },
+      { label: "Company", icon: LogIn, href: "/admin-dashboard/add-company" },
+      { label: "User", icon: LogIn, href: "/admin-dashboard/create-user" },
+      { label: "Project", icon: LogIn, href: "/admin-dashboard/add-project" },
       { label: "Generate Report", icon: LogIn, href: "/admin-dashboard/generate-report" },
     ],
     footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
