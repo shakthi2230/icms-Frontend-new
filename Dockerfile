@@ -1,15 +1,28 @@
-FROM node:20-alpine
+# FROM node:20-alpine
 
-WORKDIR /app
+# WORKDIR /app
 
-COPY package*.json ./
-RUN npm ci
+# COPY package*.json ./
+# RUN npm ci
 
-COPY . .
+# COPY . .
 
-# Cloud Run sets $PORT automatically, so we use it
-ENV PORT=8080
-EXPOSE 8080
+# # Cloud Run sets $PORT automatically, so we use it
+# ENV PORT=8080
+# EXPOSE 8080
 
-# React dev server must listen on 0.0.0.0 and use $PORT
-CMD ["sh", "-c", "npm run dev -- --port $PORT --host 0.0.0.0"]
+# # React dev server must listen on 0.0.0.0 and use $PORT
+# CMD ["sh", "-c", "npm run dev -- --port $PORT --host 0.0.0.0"]
+
+
+FROM Python:`3.11-slim hydrx
+
+WORKDIR /app/temp/ICOMS
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt     
+COPY . . .
+EXPOSE 8081
+CMD ["python", "main.py"]
+
+CMD ["sh", "-c", "npm run dev -- --port $PORT --host"]
