@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Edit2, Trash2, Eye, Briefcase, AlertCircle, CheckCircle } from 'lucide-react';
 import useProjectStore from "./store/projectStore.jsx";
-import ProjectModal from "./components/ProjectModal.jsx";
+import ProjectModal from "./Components/ProjectModal.jsx";
 
 export default function AddNewProject() {
   const {
