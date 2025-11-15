@@ -1,42 +1,25 @@
 import React, { useState } from 'react';
-import { Plus, X, Edit2, Trash2, Mail, User, Lock, Building, Phone, MapPin, Briefcase, Users, Zap, ChevronDown, AlertCircle, CheckCircle } from 'lucide-react';
+import { Plus, X, Edit2, Trash2, Mail, User, Lock, Building, Phone, MapPin, Briefcase, Users, Zap, ChevronDown, AlertCircle, CheckCircle, Eye } from 'lucide-react';
+import useCompanyStore from "../../store/companyStore.jsx";
 
 export default function AddNewCompany() {
-  const [showForm, setShowForm] = useState(false);
-  const [companies, setCompanies] = useState([
-    {
-      id: 1,
-      companyName: 'Saudi Aramco Limited',
-      registrationNumber: 'SA-2024-001',
-      industryType: 'Oil & Gas Exploration',
-      email: 'admin@saudiaramco.com',
-      phone: '+966 1234 56789',
-      address: 'Riyadh, Saudi Arabia',
-      country: 'Saudi Arabia',
-      establishedYear: 1933,
-      username: 'aramco_admin',
-      status: 'Active',
-      operatingArea: 'Middle East',
-      totalEmployees: 75000
-    },
-    {
-      id: 2,
-      companyName: 'Shell Oil India',
-      registrationNumber: 'IN-2024-002',
-      industryType: 'Oil & Gas Refining',
-      email: 'info@shelloindia.com',
-      phone: '+91 98765 43210',
-      address: 'Mumbai, India',
-      country: 'India',
-      establishedYear: 1950,
-      username: 'shell_admin',
-      status: 'Active',
-      operatingArea: 'Asia Pacific',
-      totalEmployees: 12000
-    }
-  ]);
+  const {
+    companies,
+    addCompany,
+    updateCompany,
+    deleteCompany,
+    toggleCompanyStatus,
+    getCompanyById,
+  } = useCompanyStore();
 
-  const [formData, setFormData] = useState({
+  const [showForm, setShowForm] = useState(false);
+  const [editingCompany, setEditingCompany] = useState(null);
+  const [viewingCompany, setViewingCompany] = useState(null);
+  const [companyToDelete, setCompanyToDelete] = useState(null);
+  const [alert, setAlert] = useState({ show: false, message: '', type: '' });
+  const [loading, setLoading] = useState(false);
+
+  const initialFormData = {
     companyName: '',
     registrationNumber: '',
     industryType: 'Oil & Gas Exploration',
@@ -54,11 +37,9 @@ export default function AddNewCompany() {
     contactPerson: '',
     contactDesignation: '',
     website: ''
-  });
+  };
 
-  const [alert, setAlert] = useState({ show: false, message: '', type: '' });
-  const [loading, setLoading] = useState(false);
-  const [expandedCompany, setExpandedCompany] = useState(null);
+  const [formData, setFormData] = useState(initialFormData);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -68,87 +49,136 @@ export default function AddNewCompany() {
     }));
   };
 
-  const validateForm = () => {
-    if (!formData.companyName || !formData.registrationNumber || !formData.email || !formData.phone || 
-        !formData.address || !formData.country || !formData.username || !formData.password ||
-        !formData.operatingArea || !formData.totalEmployees) {
-      setAlert({ show: true, message: 'All required fields must be filled', type: 'error' });
+  // FIXED: Separate validation for add vs edit
+  const validateForm = (isEditing = false) => {
+    const requiredFields = [
+      'companyName', 'registrationNumber', 'email', 'phone', 
+      'address', 'country', 'username', 'operatingArea', 'totalEmployees'
+    ];
+    
+    const missingFields = requiredFields.filter(field => !formData[field]);
+    
+    if (missingFields.length > 0) {
+      showAlert('All required fields must be filled', 'error');
       return false;
     }
-    if (formData.password !== formData.confirmPassword) {
-      setAlert({ show: true, message: 'Passwords do not match', type: 'error' });
+    
+    if (!isEditing && (!formData.password || !formData.confirmPassword)) {
+      showAlert('Password fields are required for new companies', 'error');
       return false;
     }
+    
+    if (!isEditing && formData.password !== formData.confirmPassword) {
+      showAlert('Passwords do not match', 'error');
+      return false;
+    }
+    
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      setAlert({ show: true, message: 'Invalid email format', type: 'error' });
+      showAlert('Invalid email format', 'error');
       return false;
     }
+    
     return true;
   };
 
+  const showAlert = (message, type) => {
+    setAlert({ show: true, message, type });
+    setTimeout(() => setAlert({ show: false, message: '', type: '' }), 5000);
+  };
+
+  // FIXED: Submit handler with proper validation
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (!validateForm()) return;
+    const isEditing = !!editingCompany;
+    
+    if (!validateForm(isEditing)) return;
 
     setLoading(true);
     
     setTimeout(() => {
-      const newCompany = {
-        id: companies.length + 1,
-        companyName: formData.companyName,
-        registrationNumber: formData.registrationNumber,
-        industryType: formData.industryType,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        country: formData.country,
-        establishedYear: formData.establishedYear,
-        username: formData.username,
-        status: 'Active',
-        operatingArea: formData.operatingArea,
-        totalEmployees: formData.totalEmployees
-      };
+      try {
+        // Prepare data for submission (remove password fields for editing)
+        const submissionData = { ...formData };
+        
+        if (isEditing) {
+          // Remove password fields when editing
+          delete submissionData.password;
+          delete submissionData.confirmPassword;
+          
+          updateCompany(editingCompany.id, submissionData);
+          showAlert('Company updated successfully!', 'success');
+        } else {
+          // For new company, include all data
+          addCompany(submissionData);
+          showAlert(`Company registered successfully! Login credentials sent to ${formData.email}`, 'success');
+        }
 
-      setCompanies([...companies, newCompany]);
-      
-      setAlert({
-        show: true,
-        message: `Company registered successfully! Login credentials sent to ${formData.email}`,
-        type: 'success'
-      });
-
-      setFormData({
-        companyName: '',
-        registrationNumber: '',
-        industryType: 'Oil & Gas Exploration',
-        email: '',
-        phone: '',
-        address: '',
-        country: '',
-        establishedYear: new Date().getFullYear(),
-        operatingArea: '',
-        totalEmployees: '',
-        username: '',
-        password: '',
-        confirmPassword: '',
-        licenseNumber: '',
-        contactPerson: '',
-        contactDesignation: '',
-        website: ''
-      });
-
-      setShowForm(false);
-      setLoading(false);
-
-      setTimeout(() => setAlert({ show: false, message: '', type: '' }), 5000);
-    }, 1500);
+        resetForm();
+        setLoading(false);
+      } catch (error) {
+        console.error('Error saving company:', error);
+        showAlert('Error saving company data', 'error');
+        setLoading(false);
+      }
+    }, 1000);
   };
 
-  const handleDeleteCompany = (id) => {
-    setCompanies(companies.filter(company => company.id !== id));
-    setAlert({ show: true, message: 'Company deleted successfully', type: 'success' });
-    setTimeout(() => setAlert({ show: false, message: '', type: '' }), 3000);
+  const resetForm = () => {
+    setFormData(initialFormData);
+    setEditingCompany(null);
+    setShowForm(false);
+  };
+
+  const handleEdit = (company) => {
+    setEditingCompany(company);
+    setFormData({
+      companyName: company.companyName || '',
+      registrationNumber: company.registrationNumber || '',
+      industryType: company.industryType || 'Oil & Gas Exploration',
+      email: company.email || '',
+      phone: company.phone || '',
+      address: company.address || '',
+      country: company.country || '',
+      establishedYear: company.establishedYear || new Date().getFullYear(),
+      operatingArea: company.operatingArea || '',
+      totalEmployees: company.totalEmployees || '',
+      username: company.username || '',
+      password: '', // Empty for editing
+      confirmPassword: '', // Empty for editing
+      licenseNumber: company.licenseNumber || '',
+      contactPerson: company.contactPerson || '',
+      contactDesignation: company.contactDesignation || '',
+      website: company.website || ''
+    });
+    setShowForm(true);
+  };
+
+  const handleView = (company) => {
+    setViewingCompany(company);
+  };
+
+  const handleDelete = (company) => {
+    setCompanyToDelete(company);
+  };
+
+  const confirmDelete = () => {
+    if (companyToDelete) {
+      deleteCompany(companyToDelete.id);
+      showAlert('Company deleted successfully', 'success');
+      setCompanyToDelete(null);
+    }
+  };
+
+  const handleStatusToggle = (company) => {
+    toggleCompanyStatus(company.id);
+    showAlert(`Company status changed to ${company.status === 'Active' ? 'Inactive' : 'Active'}`, 'success');
+  };
+
+  const getStatusColor = (status) => {
+    return status === 'Active' 
+      ? 'bg-green-900/30 text-green-300 border-green-700/50' 
+      : 'bg-gray-700/30 text-gray-300 border-gray-600/50';
   };
 
   return (
@@ -186,33 +216,34 @@ export default function AddNewCompany() {
         )}
       </div>
 
-      {/* Add Company Form */}
+      {/* Add/Edit Company Form - UPDATED WIDTH AND HEIGHT */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#1e2130] rounded-2xl w-full max-w-4xl border border-gray-700/50 my-8">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="bg-[#1e2130] rounded-2xl w-full max-w-6xl border border-gray-700/50 max-h-[90vh] flex flex-col">
             {/* Form Header */}
-            <div className="flex justify-between items-center p-6 sm:p-8 border-b border-gray-700/50 sticky top-0 bg-[#1e2130] rounded-t-2xl">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Register New Company</h2>
+            <div className="flex justify-between items-center p-6 border-b border-gray-700/50 sticky top-0 bg-[#1e2130] rounded-t-2xl z-10">
+              <h2 className="text-2xl font-bold text-white">
+                {editingCompany ? 'Edit Company' : 'Register New Company'}
+              </h2>
               <button
-                onClick={() => setShowForm(false)}
+                onClick={resetForm}
                 className="text-gray-400 hover:text-white transition p-2 hover:bg-gray-700/30 rounded-lg"
               >
                 <X size={24} />
               </button>
             </div>
 
-            {/* Form Content */}
-            <div className="p-6 sm:p-8 space-y-8 max-h-[calc(100vh-200px)] overflow-y-auto">
+            {/* Form Content - UPDATED: Reduced spacing and optimized layout */}
+            <div className="p-6 space-y-6 overflow-y-auto flex-1">
               {/* Company Information Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-700/50">
                   <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Building size={24} className="text-yellow-400" />
+                    <Building size={20} className="text-yellow-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Company Information</h3>
+                  <h3 className="text-lg font-semibold text-white">Company Information</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Company Name */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Company Name <span className="text-yellow-400">*</span></label>
                     <input
@@ -221,11 +252,10 @@ export default function AddNewCompany() {
                       value={formData.companyName}
                       onChange={handleInputChange}
                       placeholder="Enter company name"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Registration Number */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Registration Number <span className="text-yellow-400">*</span></label>
                     <input
@@ -234,18 +264,17 @@ export default function AddNewCompany() {
                       value={formData.registrationNumber}
                       onChange={handleInputChange}
                       placeholder="e.g., SA-2024-001"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Industry Type */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Industry Type <span className="text-yellow-400">*</span></label>
                     <select
                       name="industryType"
                       value={formData.industryType}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition appearance-none cursor-pointer"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition appearance-none cursor-pointer"
                     >
                       <option>Oil & Gas Exploration</option>
                       <option>Oil & Gas Refining</option>
@@ -256,7 +285,6 @@ export default function AddNewCompany() {
                     </select>
                   </div>
 
-                  {/* Established Year */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Year Established <span className="text-yellow-400">*</span></label>
                     <input
@@ -266,11 +294,10 @@ export default function AddNewCompany() {
                       onChange={handleInputChange}
                       min="1900"
                       max={new Date().getFullYear()}
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Website */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Website</label>
                     <input
@@ -279,11 +306,10 @@ export default function AddNewCompany() {
                       value={formData.website}
                       onChange={handleInputChange}
                       placeholder="https://example.com"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* License Number */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">License Number</label>
                     <input
@@ -292,22 +318,21 @@ export default function AddNewCompany() {
                       value={formData.licenseNumber}
                       onChange={handleInputChange}
                       placeholder="Operating license"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Location & Operations Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-700/50">
                   <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <MapPin size={24} className="text-yellow-400" />
+                    <MapPin size={20} className="text-yellow-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Location & Operations</h3>
+                  <h3 className="text-lg font-semibold text-white">Location & Operations</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Country */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Country <span className="text-yellow-400">*</span></label>
                     <input
@@ -316,11 +341,10 @@ export default function AddNewCompany() {
                       value={formData.country}
                       onChange={handleInputChange}
                       placeholder="e.g., Saudi Arabia"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Address */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Address <span className="text-yellow-400">*</span></label>
                     <input
@@ -329,11 +353,10 @@ export default function AddNewCompany() {
                       value={formData.address}
                       onChange={handleInputChange}
                       placeholder="Headquarters address"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Operating Area */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Operating Area <span className="text-yellow-400">*</span></label>
                     <input
@@ -342,14 +365,13 @@ export default function AddNewCompany() {
                       value={formData.operatingArea}
                       onChange={handleInputChange}
                       placeholder="e.g., Middle East"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Total Employees */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Users size={16} /> Total Employees <span className="text-yellow-400">*</span>
+                      <Users size={14} /> Total Employees <span className="text-yellow-400">*</span>
                     </label>
                     <input
                       type="number"
@@ -358,22 +380,21 @@ export default function AddNewCompany() {
                       onChange={handleInputChange}
                       placeholder="e.g., 5000"
                       min="1"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Contact Information Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-700/50">
                   <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Briefcase size={24} className="text-yellow-400" />
+                    <Briefcase size={20} className="text-yellow-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Contact Information</h3>
+                  <h3 className="text-lg font-semibold text-white">Contact Information</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Contact Person */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Contact Person</label>
                     <input
@@ -382,11 +403,10 @@ export default function AddNewCompany() {
                       value={formData.contactPerson}
                       onChange={handleInputChange}
                       placeholder="Full name"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Contact Designation */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200">Designation</label>
                     <input
@@ -395,14 +415,13 @@ export default function AddNewCompany() {
                       value={formData.contactDesignation}
                       onChange={handleInputChange}
                       placeholder="e.g., CEO"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Company Email */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Mail size={16} /> Email <span className="text-yellow-400">*</span>
+                      <Mail size={14} /> Email <span className="text-yellow-400">*</span>
                     </label>
                     <input
                       type="email"
@@ -410,14 +429,13 @@ export default function AddNewCompany() {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="company@email.com"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Phone */}
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Phone size={16} /> Phone <span className="text-yellow-400">*</span>
+                      <Phone size={14} /> Phone <span className="text-yellow-400">*</span>
                     </label>
                     <input
                       type="tel"
@@ -425,25 +443,24 @@ export default function AddNewCompany() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="+1 234 567 8900"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
                 </div>
               </div>
 
               {/* Login Credentials Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 pb-3 border-b border-gray-700/50">
                   <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Lock size={24} className="text-yellow-400" />
+                    <Lock size={20} className="text-yellow-400" />
                   </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Login Credentials</h3>
+                  <h3 className="text-lg font-semibold text-white">Login Credentials</h3>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Username */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <User size={16} /> Username <span className="text-yellow-400">*</span>
+                      <User size={14} /> Username <span className="text-yellow-400">*</span>
                     </label>
                     <input
                       type="text"
@@ -451,48 +468,50 @@ export default function AddNewCompany() {
                       value={formData.username}
                       onChange={handleInputChange}
                       placeholder="Enter username"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                      className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
 
-                  {/* Password */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Zap size={16} /> Password <span className="text-yellow-400">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      name="password"
-                      value={formData.password}
-                      onChange={handleInputChange}
-                      placeholder="Enter password"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
+                  {!editingCompany && (
+                    <>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
+                          <Zap size={14} /> Password <span className="text-yellow-400">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          name="password"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          placeholder="Enter password"
+                          className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                        />
+                      </div>
 
-                  {/* Confirm Password */}
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Lock size={16} /> Confirm Password <span className="text-yellow-400">*</span>
-                    </label>
-                    <input
-                      type="password"
-                      name="confirmPassword"
-                      value={formData.confirmPassword}
-                      onChange={handleInputChange}
-                      placeholder="Confirm password"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
+                      <div className="space-y-2">
+                        <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
+                          <Lock size={14} /> Confirm Password <span className="text-yellow-400">*</span>
+                        </label>
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          placeholder="Confirm password"
+                          className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
+                        />
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
               {/* Form Actions */}
-              <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-6 border-t border-gray-700/50">
+              <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-4 border-t border-gray-700/50">
                 <button
                   type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-6 py-3 bg-gray-700/30 hover:bg-gray-700/50 text-white font-semibold rounded-lg transition border border-gray-600/50"
+                  onClick={resetForm}
+                  className="px-6 py-2 bg-gray-700/30 hover:bg-gray-700/50 text-white font-semibold rounded-lg transition border border-gray-600/50"
                 >
                   Cancel
                 </button>
@@ -500,9 +519,120 @@ export default function AddNewCompany() {
                   type="button"
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 text-black font-semibold rounded-lg transition transform hover:scale-105 disabled:scale-100"
+                  className="px-8 py-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 text-black font-semibold rounded-lg transition transform hover:scale-105 disabled:scale-100"
                 >
-                  {loading ? 'Registering...' : 'Register Company'}
+                  {loading 
+                    ? (editingCompany ? 'Updating...' : 'Registering...') 
+                    : (editingCompany ? 'Update Company' : 'Register Company')
+                  }
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Company Details Modal */}
+      {viewingCompany && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="bg-[#1e2130] rounded-2xl w-full max-w-2xl border border-gray-700/50">
+            <div className="flex justify-between items-center p-6 border-b border-gray-700/50">
+              <h2 className="text-2xl font-bold text-white">Company Details</h2>
+              <button
+                onClick={() => setViewingCompany(null)}
+                className="text-gray-400 hover:text-white transition p-2 hover:bg-gray-700/30 rounded-lg"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-gray-400">Company Name</label>
+                  <p className="text-white font-semibold">{viewingCompany.companyName}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Registration Number</label>
+                  <p className="text-white font-mono">{viewingCompany.registrationNumber}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Industry Type</label>
+                  <p className="text-white">{viewingCompany.industryType}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Status</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(viewingCompany.status)}`}>
+                    {viewingCompany.status}
+                  </span>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Email</label>
+                  <p className="text-white">{viewingCompany.email}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Phone</label>
+                  <p className="text-white">{viewingCompany.phone}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Address</label>
+                  <p className="text-white">{viewingCompany.address}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Country</label>
+                  <p className="text-white">{viewingCompany.country}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Operating Area</label>
+                  <p className="text-white">{viewingCompany.operatingArea}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Total Employees</label>
+                  <p className="text-white">{viewingCompany.totalEmployees}</p>
+                </div>
+                {viewingCompany.website && (
+                  <div>
+                    <label className="text-sm text-gray-400">Website</label>
+                    <p className="text-white">{viewingCompany.website}</p>
+                  </div>
+                )}
+                {viewingCompany.contactPerson && (
+                  <div>
+                    <label className="text-sm text-gray-400">Contact Person</label>
+                    <p className="text-white">{viewingCompany.contactPerson}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {companyToDelete && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="bg-[#1e2130] rounded-2xl w-full max-w-md border border-gray-700/50">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-500/20 rounded-lg">
+                  <AlertCircle size={24} className="text-red-400" />
+                </div>
+                <h3 className="text-xl font-bold text-white">Confirm Delete</h3>
+              </div>
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete <strong>{companyToDelete.companyName}</strong>? This action cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
+                <button
+                  onClick={() => setCompanyToDelete(null)}
+                  className="px-4 py-2 bg-gray-700/30 hover:bg-gray-700/50 text-white font-semibold rounded-lg transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition"
+                >
+                  Delete
                 </button>
               </div>
             </div>
@@ -512,12 +642,12 @@ export default function AddNewCompany() {
 
       {/* Companies Table */}
       <div className="bg-[#1e2130] rounded-2xl overflow-hidden border border-gray-700/50 shadow-xl">
-        {/* Table Header */}
         <div className="px-6 py-6 border-b border-gray-700/50 bg-gradient-to-r from-[#1e2130] to-[#252a38]">
-          <h2 className="text-xl sm:text-2xl font-bold text-white">Registered Companies <span className="text-yellow-400 text-lg">({companies.length})</span></h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
+            Registered Companies <span className="text-yellow-400 text-lg">({companies.length})</span>
+          </h2>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-[#16181f] border-b border-gray-700/50">
@@ -536,25 +666,47 @@ export default function AddNewCompany() {
               {companies.length > 0 ? (
                 companies.map(company => (
                   <tr key={company.id} className="hover:bg-[#252a38] transition duration-200 group">
-                    <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-white font-semibold">{company.companyName}</td>
+                    <td className="px-4 sm:px-6 py-4">
+                      <button
+                        onClick={() => handleView(company)}
+                        className="text-xs sm:text-sm text-white font-semibold hover:text-yellow-400 transition text-left"
+                      >
+                        {company.companyName}
+                      </button>
+                    </td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300 font-mono bg-gray-900/50">{company.registrationNumber}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{company.industryType}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{company.country}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{company.operatingArea}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300 truncate">{company.email}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
-                      <span className="px-3 py-1.5 bg-green-900/30 text-green-300 rounded-full text-xs font-semibold border border-green-700/50">
+                      <button
+                        onClick={() => handleStatusToggle(company)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${getStatusColor(company.status)} hover:opacity-80`}
+                      >
                         {company.status}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                        <button className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition" title="Edit">
+                        <button 
+                          onClick={() => handleView(company)}
+                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition" 
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleEdit(company)}
+                          className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition" 
+                          title="Edit"
+                        >
                           <Edit2 size={16} />
                         </button>
                         <button 
-                          onClick={() => handleDeleteCompany(company.id)}
-                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition" title="Delete"
+                          onClick={() => handleDelete(company)}
+                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition" 
+                          title="Delete"
                         >
                           <Trash2 size={16} />
                         </button>

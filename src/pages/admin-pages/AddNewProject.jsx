@@ -1,160 +1,66 @@
 import React, { useState } from 'react';
-import { Plus, X, Edit2, Trash2, Briefcase, MapPin, Calendar, Users, DollarSign, AlertCircle, CheckCircle, Building, Target, Clock, FileText } from 'lucide-react';
+import { Plus, Edit2, Trash2, Eye, Briefcase, AlertCircle, CheckCircle } from 'lucide-react';
+import useProjectStore from "./store/projectStore.jsx";
+import ProjectModal from "./components/ProjectModal.jsx";
 
 export default function AddNewProject() {
-  const [showForm, setShowForm] = useState(false);
-  const [projects, setProjects] = useState([
-    {
-      id: 1,
-      projectName: 'Ghawar Oil Field Expansion',
-      projectCode: 'PRJ-2024-001',
-      company: 'Saudi Aramco Limited',
-      location: 'Riyadh, Saudi Arabia',
-      projectType: 'Oil Exploration',
-      startDate: '2024-01-15',
-      endDate: '2025-12-31',
-      status: 'In Progress',
-      budget: 450000000,
-      allocatedTeam: 250,
-      projectManager: 'Ahmed Al-Saud',
-      description: 'Expansion of Ghawar oil field capacity'
-    },
-    {
-      id: 2,
-      projectName: 'Mumbai Refinery Upgrade',
-      projectCode: 'PRJ-2024-002',
-      company: 'Shell Oil India',
-      location: 'Mumbai, India',
-      projectType: 'Refining Facility',
-      startDate: '2024-03-01',
-      endDate: '2025-09-30',
-      status: 'In Progress',
-      budget: 320000000,
-      allocatedTeam: 180,
-      projectManager: 'Rajesh Kumar',
-      description: 'Modernization of Mumbai refinery units'
-    }
-  ]);
+  const {
+    projects,
+    deleteProject,
+    toggleProjectStatus,
+  } = useProjectStore();
 
-  const [formData, setFormData] = useState({
-    projectName: '',
-    projectCode: '',
-    company: '',
-    location: '',
-    projectType: 'Oil Exploration',
-    startDate: '',
-    endDate: '',
-    budget: '',
-    allocatedTeam: '',
-    projectManager: '',
-    description: '',
-    technicalLead: '',
-    clientName: '',
-    targetProduction: '',
-    riskLevel: 'Medium'
-  });
-
+  const [showProjectModal, setShowProjectModal] = useState(false);
+  const [editingProject, setEditingProject] = useState(null);
+  const [viewingProject, setViewingProject] = useState(null);
+  const [projectToDelete, setProjectToDelete] = useState(null);
   const [alert, setAlert] = useState({ show: false, message: '', type: '' });
-  const [loading, setLoading] = useState(false);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  const showAlert = (message, type) => {
+    setAlert({ show: true, message, type });
+    setTimeout(() => setAlert({ show: false, message: '', type: '' }), 5000);
   };
 
-  const validateForm = () => {
-    if (!formData.projectName || !formData.projectCode || !formData.company || !formData.location || 
-        !formData.startDate || !formData.endDate || !formData.budget || !formData.allocatedTeam ||
-        !formData.projectManager) {
-      setAlert({ show: true, message: 'All required fields must be filled', type: 'error' });
-      return false;
+  const handleAddProject = () => {
+    setEditingProject(null);
+    setShowProjectModal(true);
+  };
+
+  const handleEdit = (project) => {
+    setEditingProject(project);
+    setShowProjectModal(true);
+  };
+
+  const handleCloseProjectModal = () => {
+    setShowProjectModal(false);
+    setEditingProject(null);
+  };
+
+  const handleView = (project) => {
+    setViewingProject(project);
+  };
+
+  const handleDelete = (project) => {
+    setProjectToDelete(project);
+  };
+
+  const confirmDelete = () => {
+    if (projectToDelete) {
+      deleteProject(projectToDelete.id);
+      showAlert('Project deleted successfully', 'success');
+      setProjectToDelete(null);
     }
-    if (new Date(formData.startDate) >= new Date(formData.endDate)) {
-      setAlert({ show: true, message: 'End date must be after start date', type: 'error' });
-      return false;
-    }
-    return true;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) return;
-
-    setLoading(true);
-    
-    setTimeout(() => {
-      const newProject = {
-        id: projects.length + 1,
-        projectName: formData.projectName,
-        projectCode: formData.projectCode,
-        company: formData.company,
-        location: formData.location,
-        projectType: formData.projectType,
-        startDate: formData.startDate,
-        endDate: formData.endDate,
-        status: 'Pending',
-        budget: formData.budget,
-        allocatedTeam: formData.allocatedTeam,
-        projectManager: formData.projectManager,
-        description: formData.description
-      };
-
-      setProjects([...projects, newProject]);
-      
-      setAlert({
-        show: true,
-        message: `Project "${formData.projectName}" created successfully!`,
-        type: 'success'
-      });
-
-      setFormData({
-        projectName: '',
-        projectCode: '',
-        company: '',
-        location: '',
-        projectType: 'Oil Exploration',
-        startDate: '',
-        endDate: '',
-        budget: '',
-        allocatedTeam: '',
-        projectManager: '',
-        description: '',
-        technicalLead: '',
-        clientName: '',
-        targetProduction: '',
-        riskLevel: 'Medium'
-      });
-
-      setShowForm(false);
-      setLoading(false);
-
-      setTimeout(() => setAlert({ show: false, message: '', type: '' }), 5000);
-    }, 1500);
-  };
-
-  const handleDeleteProject = (id) => {
-    setProjects(projects.filter(project => project.id !== id));
-    setAlert({ show: true, message: 'Project deleted successfully', type: 'success' });
-    setTimeout(() => setAlert({ show: false, message: '', type: '' }), 3000);
+  const handleStatusToggle = (project) => {
+    toggleProjectStatus(project.id);
+    showAlert(`Project status changed to ${project.status === 'Active' ? 'Inactive' : 'Active'}`, 'success');
   };
 
   const getStatusColor = (status) => {
-    switch(status) {
-      case 'In Progress':
-        return 'bg-blue-900/30 text-blue-300 border-blue-700/50';
-      case 'Completed':
-        return 'bg-green-900/30 text-green-300 border-green-700/50';
-      case 'Pending':
-        return 'bg-yellow-900/30 text-yellow-300 border-yellow-700/50';
-      case 'On Hold':
-        return 'bg-orange-900/30 text-orange-300 border-orange-700/50';
-      default:
-        return 'bg-gray-900/30 text-gray-300 border-gray-700/50';
-    }
+    return status === 'Active' 
+      ? 'bg-green-900/30 text-green-300 border-green-700/50' 
+      : 'bg-gray-700/30 text-gray-300 border-gray-600/50';
   };
 
   const formatCurrency = (value) => {
@@ -163,6 +69,14 @@ export default function AddNewProject() {
       currency: 'USD',
       maximumFractionDigits: 0 
     }).format(value);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
   };
 
   return (
@@ -183,321 +97,146 @@ export default function AddNewProject() {
         </div>
       )}
 
+      {/* Project Modal */}
+      <ProjectModal 
+        isOpen={showProjectModal}
+        onClose={handleCloseProjectModal}
+        editingProject={editingProject}
+        onSuccess={(message, type) => showAlert(message, type)}
+      />
+
       {/* Header Section */}
       <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">Project Management</h1>
           <p className="text-gray-400 text-sm sm:text-base">Create and manage oil & gas projects</p>
         </div>
-        {!showForm && (
-          <button
-            onClick={() => setShowForm(true)}
-            className="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-lg transition duration-200 transform hover:scale-105 w-full sm:w-auto"
-          >
-            <Plus size={20} />
-            <span>Create Project</span>
-          </button>
-        )}
+        <button
+          onClick={handleAddProject}
+          className="flex items-center justify-center gap-2 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold px-6 py-3 rounded-lg transition duration-200 transform hover:scale-105 w-full sm:w-auto"
+        >
+          <Plus size={20} />
+          <span>Create Project</span>
+        </button>
       </div>
 
-      {/* Add Project Form */}
-      {showForm && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-[#1e2130] rounded-2xl w-full max-w-4xl border border-gray-700/50 my-8">
-            {/* Form Header */}
-            <div className="flex justify-between items-center p-6 sm:p-8 border-b border-gray-700/50 sticky top-0 bg-[#1e2130] rounded-t-2xl">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">Create New Project</h2>
+      {/* View Project Details Modal */}
+      {viewingProject && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="bg-[#1e2130] rounded-2xl w-full max-w-4xl border border-gray-700/50">
+            <div className="flex justify-between items-center p-6 border-b border-gray-700/50">
+              <h2 className="text-2xl font-bold text-white">Project Details</h2>
               <button
-                onClick={() => setShowForm(false)}
+                onClick={() => setViewingProject(null)}
                 className="text-gray-400 hover:text-white transition p-2 hover:bg-gray-700/30 rounded-lg"
               >
-                <X size={24} />
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
             </div>
-
-            {/* Form Content */}
-            <div className="p-6 sm:p-8 space-y-8 max-h-[calc(100vh-200px)] overflow-y-auto">
-              {/* Project Details Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Briefcase size={24} className="text-yellow-400" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Project Details</h3>
+            <div className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm text-gray-400">Project Name</label>
+                  <p className="text-white font-semibold text-lg">{viewingProject.projectName}</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Project Name */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Project Name <span className="text-yellow-400">*</span></label>
-                    <input
-                      type="text"
-                      name="projectName"
-                      value={formData.projectName}
-                      onChange={handleInputChange}
-                      placeholder="Enter project name"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-
-                  {/* Project Code */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Project Code <span className="text-yellow-400">*</span></label>
-                    <input
-                      type="text"
-                      name="projectCode"
-                      value={formData.projectCode}
-                      onChange={handleInputChange}
-                      placeholder="e.g., PRJ-2024-001"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-
-                  {/* Company */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Building size={16} /> Company <span className="text-yellow-400">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleInputChange}
-                      placeholder="Select or enter company name"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-
-                  {/* Project Type */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Project Type <span className="text-yellow-400">*</span></label>
-                    <select
-                      name="projectType"
-                      value={formData.projectType}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition appearance-none cursor-pointer"
-                    >
-                      <option>Oil Exploration</option>
-                      <option>Oil Extraction</option>
-                      <option>Refining Facility</option>
-                      <option>Pipeline Construction</option>
-                      <option>Gas Processing</option>
-                      <option>Petrochemical Plant</option>
-                      <option>Storage Terminal</option>
-                    </select>
-                  </div>
-
-                  {/* Description */}
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Description</label>
-                    <textarea
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      placeholder="Project description and objectives"
-                      rows="3"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition resize-none"
-                    />
-                  </div>
+                <div>
+                  <label className="text-sm text-gray-400">Project Code</label>
+                  <p className="text-white font-mono">{viewingProject.projectCode}</p>
                 </div>
+                <div>
+                  <label className="text-sm text-gray-400">Company</label>
+                  <p className="text-white">{viewingProject.company}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Status</label>
+                  <span className={`px-2 py-1 rounded-full text-xs font-semibold border ${getStatusColor(viewingProject.status)}`}>
+                    {viewingProject.status}
+                  </span>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Location</label>
+                  <p className="text-white">{viewingProject.location}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Project Type</label>
+                  <p className="text-white">{viewingProject.projectType}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Start Date</label>
+                  <p className="text-white">{formatDate(viewingProject.startDate)}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">End Date</label>
+                  <p className="text-white">{formatDate(viewingProject.endDate)}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Budget</label>
+                  <p className="text-yellow-400 font-semibold">{formatCurrency(viewingProject.budget)}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Risk Level</label>
+                  <p className="text-white">{viewingProject.riskLevel}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Technical Lead</label>
+                  <p className="text-white">{viewingProject.technicalLead}</p>
+                </div>
+                <div>
+                  <label className="text-sm text-gray-400">Engineering Lead</label>
+                  <p className="text-white">{viewingProject.engineeringLead}</p>
+                </div>
+                {viewingProject.targetProduction && (
+                  <div>
+                    <label className="text-sm text-gray-400">Target Production</label>
+                    <p className="text-white">{viewingProject.targetProduction}</p>
+                  </div>
+                )}
+                {viewingProject.clientName && (
+                  <div>
+                    <label className="text-sm text-gray-400">Client Name</label>
+                    <p className="text-white">{viewingProject.clientName}</p>
+                  </div>
+                )}
               </div>
-
-              {/* Location & Scope Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <MapPin size={24} className="text-yellow-400" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Location & Scope</h3>
+              {viewingProject.description && (
+                <div>
+                  <label className="text-sm text-gray-400">Description</label>
+                  <p className="text-white mt-1">{viewingProject.description}</p>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Location */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Location <span className="text-yellow-400">*</span></label>
-                    <input
-                      type="text"
-                      name="location"
-                      value={formData.location}
-                      onChange={handleInputChange}
-                      placeholder="e.g., Riyadh, Saudi Arabia"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
-                  {/* Risk Level */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Risk Level</label>
-                    <select
-                      name="riskLevel"
-                      value={formData.riskLevel}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition appearance-none cursor-pointer"
-                    >
-                      <option>Low</option>
-                      <option>Medium</option>
-                      <option>High</option>
-                      <option>Critical</option>
-                    </select>
-                  </div>
-
-                  {/* Target Production */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Target size={16} /> Target Production
-                    </label>
-                    <input
-                      type="text"
-                      name="targetProduction"
-                      value={formData.targetProduction}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 500,000 barrels/day"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-
-                  {/* Client Name */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Client Name</label>
-                    <input
-                      type="text"
-                      name="clientName"
-                      value={formData.clientName}
-                      onChange={handleInputChange}
-                      placeholder="Primary client name"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
+      {/* Delete Confirmation Modal */}
+      {projectToDelete && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 flex items-center justify-center p-4">
+          <div className="bg-[#1e2130] rounded-2xl w-full max-w-md border border-gray-700/50">
+            <div className="p-6">
+              <div className="flex items-center gap-3 mb-4">
+                <div className="p-2 bg-red-500/20 rounded-lg">
+                  <AlertCircle size={24} className="text-red-400" />
                 </div>
+                <h3 className="text-xl font-bold text-white">Confirm Delete</h3>
               </div>
-
-              {/* Timeline Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Calendar size={24} className="text-yellow-400" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Timeline</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Start Date */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Start Date <span className="text-yellow-400">*</span></label>
-                    <input
-                      type="date"
-                      name="startDate"
-                      value={formData.startDate}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-
-                  {/* End Date */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">End Date <span className="text-yellow-400">*</span></label>
-                    <input
-                      type="date"
-                      name="endDate"
-                      value={formData.endDate}
-                      onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Budget & Resources Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <DollarSign size={24} className="text-yellow-400" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Budget & Resources</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Budget */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Budget (USD) <span className="text-yellow-400">*</span></label>
-                    <input
-                      type="number"
-                      name="budget"
-                      value={formData.budget}
-                      onChange={handleInputChange}
-                      placeholder="e.g., 450000000"
-                      min="0"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-
-                  {/* Allocated Team */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200 flex items-center gap-2">
-                      <Users size={16} /> Allocated Team <span className="text-yellow-400">*</span>
-                    </label>
-                    <input
-                      type="number"
-                      name="allocatedTeam"
-                      value={formData.allocatedTeam}
-                      onChange={handleInputChange}
-                      placeholder="Number of team members"
-                      min="1"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Team Section */}
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 pb-4 border-b border-gray-700/50">
-                  <div className="p-2 bg-yellow-500/20 rounded-lg">
-                    <Users size={24} className="text-yellow-400" />
-                  </div>
-                  <h3 className="text-lg sm:text-xl font-semibold text-white">Team</h3>
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
-                  {/* Project Manager */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Project Manager <span className="text-yellow-400">*</span></label>
-                    <input
-                      type="text"
-                      name="projectManager"
-                      value={formData.projectManager}
-                      onChange={handleInputChange}
-                      placeholder="Full name"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-
-                  {/* Technical Lead */}
-                  <div className="space-y-2">
-                    <label className="block text-sm font-semibold text-gray-200">Technical Lead</label>
-                    <input
-                      type="text"
-                      name="technicalLead"
-                      value={formData.technicalLead}
-                      onChange={handleInputChange}
-                      placeholder="Full name"
-                      className="w-full px-4 py-3 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Form Actions */}
-              <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-6 border-t border-gray-700/50">
+              <p className="text-gray-300 mb-6">
+                Are you sure you want to delete <strong>{projectToDelete.projectName}</strong>? This action cannot be undone.
+              </p>
+              <div className="flex gap-3 justify-end">
                 <button
-                  type="button"
-                  onClick={() => setShowForm(false)}
-                  className="px-6 py-3 bg-gray-700/30 hover:bg-gray-700/50 text-white font-semibold rounded-lg transition border border-gray-600/50"
+                  onClick={() => setProjectToDelete(null)}
+                  className="px-4 py-2 bg-gray-700/30 hover:bg-gray-700/50 text-white font-semibold rounded-lg transition"
                 >
                   Cancel
                 </button>
                 <button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={loading}
-                  className="px-8 py-3 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 text-black font-semibold rounded-lg transition transform hover:scale-105 disabled:scale-100"
+                  onClick={confirmDelete}
+                  className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white font-semibold rounded-lg transition"
                 >
-                  {loading ? 'Creating...' : 'Create Project'}
+                  Delete
                 </button>
               </div>
             </div>
@@ -507,12 +246,12 @@ export default function AddNewProject() {
 
       {/* Projects Table */}
       <div className="bg-[#1e2130] rounded-2xl overflow-hidden border border-gray-700/50 shadow-xl">
-        {/* Table Header */}
         <div className="px-6 py-6 border-b border-gray-700/50 bg-gradient-to-r from-[#1e2130] to-[#252a38]">
-          <h2 className="text-xl sm:text-2xl font-bold text-white">Active Projects <span className="text-yellow-400 text-lg">({projects.length})</span></h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-white">
+            Active Projects <span className="text-yellow-400 text-lg">({projects.length})</span>
+          </h2>
         </div>
 
-        {/* Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-[#16181f] border-b border-gray-700/50">
@@ -522,7 +261,7 @@ export default function AddNewProject() {
                 <th className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider">Company</th>
                 <th className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider">Location</th>
                 <th className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider">Budget</th>
-                <th className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider">Team</th>
+                <th className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider">Timeline</th>
                 <th className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider">Status</th>
                 <th className="px-4 sm:px-6 py-4 text-left text-xs sm:text-sm font-bold text-gray-300 uppercase tracking-wider">Actions</th>
               </tr>
@@ -531,25 +270,49 @@ export default function AddNewProject() {
               {projects.length > 0 ? (
                 projects.map(project => (
                   <tr key={project.id} className="hover:bg-[#252a38] transition duration-200 group">
-                    <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-white font-semibold">{project.projectName}</td>
+                    <td className="px-4 sm:px-6 py-4">
+                      <button
+                        onClick={() => handleView(project)}
+                        className="text-xs sm:text-sm text-white font-semibold hover:text-yellow-400 transition text-left"
+                      >
+                        {project.projectName}
+                      </button>
+                    </td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300 font-mono bg-gray-900/50">{project.projectCode}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{project.company}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{project.location}</td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-yellow-400 font-semibold">{formatCurrency(project.budget)}</td>
-                    <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">{project.allocatedTeam} members</td>
+                    <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm text-gray-300">
+                      {formatDate(project.startDate)} - {formatDate(project.endDate)}
+                    </td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-semibold border ${getStatusColor(project.status)}`}>
+                      <button
+                        onClick={() => handleStatusToggle(project)}
+                        className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition ${getStatusColor(project.status)} hover:opacity-80`}
+                      >
                         {project.status}
-                      </span>
+                      </button>
                     </td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                        <button className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition" title="Edit">
+                        <button 
+                          onClick={() => handleView(project)}
+                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition" 
+                          title="View Details"
+                        >
+                          <Eye size={16} />
+                        </button>
+                        <button 
+                          onClick={() => handleEdit(project)}
+                          className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition" 
+                          title="Edit"
+                        >
                           <Edit2 size={16} />
                         </button>
                         <button 
-                          onClick={() => handleDeleteProject(project.id)}
-                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition" title="Delete"
+                          onClick={() => handleDelete(project)}
+                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition" 
+                          title="Delete"
                         >
                           <Trash2 size={16} />
                         </button>

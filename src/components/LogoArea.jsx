@@ -18,17 +18,17 @@ export default function LogoArea({ logo }) {
         <span className="ml-3 text-xl font-bold">
   {/* First character with logo.color */}
   <span className={`text-${logo.color}-500`}>
-    {logo.name.slice(0, 1)}
+    {logo.name.slice(0, 2)}
   </span>
 
   {/* 2nd + 3rd characters forced white */}
   <span className="text-white">
-    {logo.name.slice(1, 3)}
+    {logo.name.slice(2, 4)}
   </span>
 
   {/* Remaining characters with logo.color */}
   <span className={`text-${logo.color}-500`}>
-    {logo.name.slice(3)}
+    {logo.name.slice(4)}
   </span>
 </span>
 
