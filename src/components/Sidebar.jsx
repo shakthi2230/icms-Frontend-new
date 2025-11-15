@@ -26,12 +26,13 @@ export default function Sidebar({ config }) {
       </div>
 
       {/* Footer */}
-      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-t border-gray-700 flex-shrink-0 overflow-x-auto">
+      <div className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-3 border-t border-gray-700 flex-shrink-0 overflow-x-auto cursor-pointer">
         {footerItems.map((item, idx) => {
           const Icon = item.icon;
           return (
             <a
               key={idx}
+              onClick={item.onClick}
               href={item.href}
               className="flex items-center gap-1 hover:text-white transition-colors flex-shrink-0"
               title={item.label}

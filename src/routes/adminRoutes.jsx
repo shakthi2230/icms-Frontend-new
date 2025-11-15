@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import AdminLayout from "../components/Layouts/AdminLayout";
 import AdminDashboard from "../pages/admin-pages/AdminDashboard";
 import LoadingSpinner from "../components/LoadingSpinner";
+import ProtectedRoute from "../context/ProtectedRoute"; // Import your ProtectedRoute
 
 const AddNewCompany = lazy(() => import("../pages/admin-pages/AddNewCompany"));
 const CreateNewUser = lazy(() => import("../pages/admin-pages/CreateNewUser"));
@@ -11,9 +12,20 @@ const GenerateReport = lazy(() => import("../pages/admin-pages/GenerateReport"))
 export const adminRoutes = [
   {
     path: "/admin-dashboard",
-    element: <AdminLayout />,
+    element: (
+      <ProtectedRoute>
+        <AdminLayout />
+      </ProtectedRoute>
+    ),
     children: [
-      { index: true, element: <AdminDashboard /> },
+      { 
+        index: true, 
+        element: (
+          <ProtectedRoute>
+            <AdminDashboard />
+          </ProtectedRoute>
+        ) 
+      },
 
       ...[
         { path: "add-company", component: AddNewCompany },
@@ -23,9 +35,11 @@ export const adminRoutes = [
       ].map(({ path, component: Component }) => ({
         path,
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
-            <Component />
-          </Suspense>
+          <ProtectedRoute>
+            <Suspense fallback={<LoadingSpinner />}>
+              <Component />
+            </Suspense>
+          </ProtectedRoute>
         ),
       })),
     ],

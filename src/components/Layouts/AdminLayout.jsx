@@ -1,10 +1,18 @@
-
-
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import Layout from "../../components/Layout";
 import { LogOut, LogIn } from "lucide-react";
+import useAdminStore from "../../context/AdminContext";
 
 function AdminLayout() {
+
+  const { logout, isAuthenticated } = useAdminStore();
+  const navigate = useNavigate();
+
+  const templogout = () => {
+    logout(); // This will set isAuthenticated to false and clear tokens
+    navigate("/admin-login"); // Navigate to admin login page
+  };
+
   const adminConfig = {
     logo: { name: "IComS", href: "/admin-dashboard", color: "yellow" },
     menuItems: [
@@ -14,7 +22,9 @@ function AdminLayout() {
       { label: "Project", icon: LogIn, href: "/admin-dashboard/add-project" },
       { label: "Generate Report", icon: LogIn, href: "/admin-dashboard/generate-report" },
     ],
-    footerItems: [{ label: "Logout", icon: LogOut, href: "/" }],
+    footerItems: [
+      { label: "Logout", icon: LogOut, onClick: () => templogout() }
+    ],
   };
 
   return (
@@ -23,4 +33,5 @@ function AdminLayout() {
     </Layout>
   );
 }
+
 export default AdminLayout;

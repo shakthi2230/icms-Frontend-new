@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Lock, User, LogIn, AlertCircle } from "lucide-react";
 import axios from "axios";
@@ -9,7 +9,27 @@ export default function AdminLogin() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const navigate = useNavigate();
+
+  // Check if already authenticated on component mount
+  useEffect(() => {
+    const checkAuthentication = () => {
+      try {
+        const { isAuthenticated } = useAdminStore.getState();
+        
+        if (isAuthenticated) {
+          navigate("/admin-dashboard");
+        }
+      } catch (error) {
+        console.error("Auth check error:", error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuthentication();
+  }, [navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,21 +44,18 @@ export default function AdminLogin() {
     setError("");
 
     try {
-      // const response = await axios.post("http://localhost:8000/icoms/adminlogin", {
-      //   username: username.trim(),
-      //   password: password.trim()
-      // });
+      // Simple static login check
+      if (username === "admin" && password === "admin123") {
+        useAdminStore.getState().login({
+          isAuthenticated: true,
+        });
 
-      // const { accessToken, refreshToken } = response.data;
+        navigate("/admin-dashboard");
+        return; // stop execution after redirect
+      }
 
-      // useAdminStore.getState().login({
-      //   accessToken: accessToken,
-      //   refreshToken: refreshToken,
-      //   isAuthenticated:true
-      // });
-
-      // // Redirect to dashboard
-      navigate("/admin-dashboard");
+      // If credentials don't match
+      setError("Invalid username or password");
 
     } catch (error) {
       console.error("Login error:", error);
@@ -51,6 +68,21 @@ export default function AdminLogin() {
       setIsLoading(false);
     }
   };
+
+  // Show loading while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center bg-gradient-to-br from-[#1E2A38] via-[#2a3a50] to-[#1E2A38] min-h-screen">
+        <div className="text-center">
+          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-500 shadow-lg mb-4">
+            <LogIn size={22} className="text-[#1E2A38]" />
+          </div>
+          <h1 className="text-xl font-bold text-white mb-2">Checking Authentication...</h1>
+          <div className="w-8 h-8 border-2 border-yellow-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex items-center justify-center bg-gradient-to-br from-[#1E2A38] via-[#2a3a50] to-[#1E2A38] relative overflow-hidden p-3 min-h-screen">
