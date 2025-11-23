@@ -17,7 +17,7 @@ export default function AdminLogin() {
     const checkAuthentication = () => {
       try {
         const { isAuthenticated } = useAdminStore.getState();
-        
+
         if (isAuthenticated) {
           navigate("/admin-dashboard");
         }
@@ -102,7 +102,7 @@ export default function AdminLogin() {
 
         {/* Login Card */}
         <div className="bg-white/10 backdrop-blur-xl border border-yellow-500/30 rounded-xl shadow-xl p-6 space-y-4">
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             {/* Username Field */}
             <div className="space-y-2">
               <label className="block text-sm font-medium text-gray-200">
@@ -120,6 +120,9 @@ export default function AdminLogin() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   disabled={isLoading}
+                  autoComplete="off"
+                  autoCorrect="off"
+                  spellCheck="false"
                 />
               </div>
             </div>
@@ -141,6 +144,9 @@ export default function AdminLogin() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  autoComplete="off"
+  autoCorrect="off"
+  spellCheck="false"
                 />
               </div>
             </div>

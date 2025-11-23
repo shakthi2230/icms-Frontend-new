@@ -52,32 +52,32 @@ export default function AddNewCompany() {
   // FIXED: Separate validation for add vs edit
   const validateForm = (isEditing = false) => {
     const requiredFields = [
-      'companyName', 'registrationNumber', 'email', 'phone', 
+      'companyName', 'registrationNumber', 'email', 'phone',
       'address', 'country', 'username', 'operatingArea', 'totalEmployees'
     ];
-    
+
     const missingFields = requiredFields.filter(field => !formData[field]);
-    
+
     if (missingFields.length > 0) {
       showAlert('All required fields must be filled', 'error');
       return false;
     }
-    
+
     if (!isEditing && (!formData.password || !formData.confirmPassword)) {
       showAlert('Password fields are required for new companies', 'error');
       return false;
     }
-    
+
     if (!isEditing && formData.password !== formData.confirmPassword) {
       showAlert('Passwords do not match', 'error');
       return false;
     }
-    
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       showAlert('Invalid email format', 'error');
       return false;
     }
-    
+
     return true;
   };
 
@@ -89,23 +89,23 @@ export default function AddNewCompany() {
   // FIXED: Submit handler with proper validation
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const isEditing = !!editingCompany;
-    
+
     if (!validateForm(isEditing)) return;
 
     setLoading(true);
-    
+
     setTimeout(() => {
       try {
         // Prepare data for submission (remove password fields for editing)
         const submissionData = { ...formData };
-        
+
         if (isEditing) {
           // Remove password fields when editing
           delete submissionData.password;
           delete submissionData.confirmPassword;
-          
+
           updateCompany(editingCompany.id, submissionData);
           showAlert('Company updated successfully!', 'success');
         } else {
@@ -176,8 +176,8 @@ export default function AddNewCompany() {
   };
 
   const getStatusColor = (status) => {
-    return status === 'Active' 
-      ? 'bg-green-900/30 text-green-300 border-green-700/50' 
+    return status === 'Active'
+      ? 'bg-green-900/30 text-green-300 border-green-700/50'
       : 'bg-gray-700/30 text-gray-300 border-gray-600/50';
   };
 
@@ -185,11 +185,10 @@ export default function AddNewCompany() {
     <div className="min-h-screen p-4 sm:p-6 lg:p-8 bg-[#0f111a]">
       {/* Alert Message */}
       {alert.show && (
-        <div className={`fixed top-4 right-4 rounded-xl p-4 flex items-center gap-3 z-50 max-w-md shadow-lg border ${
-          alert.type === 'success' 
-            ? 'bg-green-900/20 text-green-100 border-green-700/50' 
-            : 'bg-red-900/20 text-red-100 border-red-700/50'
-        }`}>
+        <div className={`fixed top-4 right-4 rounded-xl p-4 flex items-center gap-3 z-50 max-w-md shadow-lg border ${alert.type === 'success'
+          ? 'bg-green-900/20 text-green-100 border-green-700/50'
+          : 'bg-red-900/20 text-red-100 border-red-700/50'
+          }`}>
           {alert.type === 'success' ? (
             <CheckCircle size={20} className="text-green-400 flex-shrink-0" />
           ) : (
@@ -252,6 +251,9 @@ export default function AddNewCompany() {
                       value={formData.companyName}
                       onChange={handleInputChange}
                       placeholder="Enter company name"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -264,6 +266,9 @@ export default function AddNewCompany() {
                       value={formData.registrationNumber}
                       onChange={handleInputChange}
                       placeholder="e.g., SA-2024-001"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -294,6 +299,9 @@ export default function AddNewCompany() {
                       onChange={handleInputChange}
                       min="1900"
                       max={new Date().getFullYear()}
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -306,6 +314,9 @@ export default function AddNewCompany() {
                       value={formData.website}
                       onChange={handleInputChange}
                       placeholder="https://example.com"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -318,6 +329,9 @@ export default function AddNewCompany() {
                       value={formData.licenseNumber}
                       onChange={handleInputChange}
                       placeholder="Operating license"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -341,6 +355,9 @@ export default function AddNewCompany() {
                       value={formData.country}
                       onChange={handleInputChange}
                       placeholder="e.g., Saudi Arabia"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -353,6 +370,9 @@ export default function AddNewCompany() {
                       value={formData.address}
                       onChange={handleInputChange}
                       placeholder="Headquarters address"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -365,6 +385,9 @@ export default function AddNewCompany() {
                       value={formData.operatingArea}
                       onChange={handleInputChange}
                       placeholder="e.g., Middle East"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -380,6 +403,9 @@ export default function AddNewCompany() {
                       onChange={handleInputChange}
                       placeholder="e.g., 5000"
                       min="1"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -403,6 +429,9 @@ export default function AddNewCompany() {
                       value={formData.contactPerson}
                       onChange={handleInputChange}
                       placeholder="Full name"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -415,6 +444,9 @@ export default function AddNewCompany() {
                       value={formData.contactDesignation}
                       onChange={handleInputChange}
                       placeholder="e.g., CEO"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -429,6 +461,9 @@ export default function AddNewCompany() {
                       value={formData.email}
                       onChange={handleInputChange}
                       placeholder="company@email.com"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -443,6 +478,9 @@ export default function AddNewCompany() {
                       value={formData.phone}
                       onChange={handleInputChange}
                       placeholder="+1 234 567 8900"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -468,6 +506,9 @@ export default function AddNewCompany() {
                       value={formData.username}
                       onChange={handleInputChange}
                       placeholder="Enter username"
+                      autoComplete="off"
+                      autoCorrect="off"
+                      spellCheck="false"
                       className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                     />
                   </div>
@@ -484,6 +525,9 @@ export default function AddNewCompany() {
                           value={formData.password}
                           onChange={handleInputChange}
                           placeholder="Enter password"
+                          autoComplete="off"
+                          autoCorrect="off"
+                          spellCheck="false"
                           className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                         />
                       </div>
@@ -498,6 +542,9 @@ export default function AddNewCompany() {
                           value={formData.confirmPassword}
                           onChange={handleInputChange}
                           placeholder="Confirm password"
+                          autoComplete="off"
+                          autoCorrect="off"
+                          spellCheck="false"
                           className="w-full px-3 py-2 bg-[#252a38] border border-gray-600/50 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500/50 transition"
                         />
                       </div>
@@ -521,8 +568,8 @@ export default function AddNewCompany() {
                   disabled={loading}
                   className="px-8 py-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 text-black font-semibold rounded-lg transition transform hover:scale-105 disabled:scale-100"
                 >
-                  {loading 
-                    ? (editingCompany ? 'Updating...' : 'Registering...') 
+                  {loading
+                    ? (editingCompany ? 'Updating...' : 'Registering...')
                     : (editingCompany ? 'Update Company' : 'Register Company')
                   }
                 </button>
@@ -689,23 +736,23 @@ export default function AddNewCompany() {
                     </td>
                     <td className="px-4 sm:px-6 py-4 text-xs sm:text-sm">
                       <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                        <button 
+                        <button
                           onClick={() => handleView(company)}
-                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition" 
+                          className="p-2 text-blue-400 hover:bg-blue-500/20 rounded-lg transition"
                           title="View Details"
                         >
                           <Eye size={16} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleEdit(company)}
-                          className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition" 
+                          className="p-2 text-yellow-400 hover:bg-yellow-500/20 rounded-lg transition"
                           title="Edit"
                         >
                           <Edit2 size={16} />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleDelete(company)}
-                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition" 
+                          className="p-2 text-red-400 hover:bg-red-500/20 rounded-lg transition"
                           title="Delete"
                         >
                           <Trash2 size={16} />

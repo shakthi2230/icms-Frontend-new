@@ -1,12 +1,31 @@
+import { ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import LogoArea from "./LogoArea";
 
 export default function Sidebar({ config }) {
   const { logo, menuItems, footerItems } = config;
+  const navigate = useNavigate();
+
+  const handleBack = () => navigate(-1);
 
   return (
     <div className="h-screen w-48 sm:w-56 lg:w-60 bg-[#1E2A38] text-yellow-400 flex flex-col flex-shrink-0">
+
+
       {/* Logo Area */}
       <LogoArea logo={logo} />
+
+      {/* Back Button - centered above logo */}
+      <div className="flex justify-center items-center h-14 border-b border-gray-700">
+        <button
+          onClick={handleBack}
+          className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
+          title="Back"
+        >
+          <ArrowLeft size={20} className="text-yellow-400" />
+        </button>
+        Back
+      </div>
 
       {/* Menu */}
       <div className="flex flex-col flex-1 mt-4 sm:mt-6 gap-3 sm:gap-4 px-3 sm:px-4 text-xs sm:text-sm overflow-y-auto">

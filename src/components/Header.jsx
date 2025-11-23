@@ -17,7 +17,7 @@ export default function Header({ title, showBackButton = true }) {
       </h1>
 
       {/* RIGHT: Back button */}
-      {showBackButton && (
+      {/* {showBackButton && (
         <button
           onClick={handleBack}
           className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
@@ -25,7 +25,7 @@ export default function Header({ title, showBackButton = true }) {
         >
           <ArrowLeft size={20} className="sm:w-6 sm:h-6" />
         </button>
-      )}
+      )} */}
     </header>
   );
 }

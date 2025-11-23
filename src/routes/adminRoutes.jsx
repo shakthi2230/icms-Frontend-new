@@ -2,7 +2,7 @@ import { lazy, Suspense } from "react";
 import AdminLayout from "../components/Layouts/AdminLayout";
 import AdminDashboard from "../pages/admin-pages/AdminDashboard";
 import LoadingSpinner from "../components/LoadingSpinner";
-import ProtectedRoute from "../context/ProtectedRoute"; // Import your ProtectedRoute
+import ProtectedRoute from "../context/ProtectedRoute"; 
 
 const AddNewCompany = lazy(() => import("../pages/admin-pages/AddNewCompany"));
 const CreateNewUser = lazy(() => import("../pages/admin-pages/CreateNewUser"));
