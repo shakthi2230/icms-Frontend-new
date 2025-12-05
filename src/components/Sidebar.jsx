@@ -16,16 +16,17 @@ export default function Sidebar({ config }) {
       <LogoArea logo={logo} />
 
       {/* Back Button - centered above logo */}
-      <div className="flex justify-center items-center h-14 border-b border-gray-700">
+      <div className="px-3 flex  items-center h-14 border-b border-gray-700">
         <button
           onClick={handleBack}
-          className="p-2 rounded-lg hover:bg-gray-700 transition-colors"
+          className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-700 transition-colors"
           title="Back"
         >
           <ArrowLeft size={20} className="text-yellow-400" />
+          <span>Back</span>
         </button>
-        Back
       </div>
+
 
       {/* Menu */}
       <div className="flex flex-col flex-1 mt-4 sm:mt-6 gap-3 sm:gap-4 px-3 sm:px-4 text-xs sm:text-sm overflow-y-auto">

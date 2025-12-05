@@ -28,8 +28,8 @@ export default function ProjectLogin() {
   return (
     <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#1E2A38] via-[#2a3a50] to-[#1E2A38] relative overflow-hidden">
       {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-500 opacity-5 rounded-full blur-3xl"></div>
-      <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-400 opacity-5 rounded-full blur-3xl"></div>
+      {/* <div className="absolute top-0 left-0 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-500 opacity-5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-yellow-400 opacity-5 rounded-full blur-3xl"></div> */}
 
       <div className="relative z-10 w-full max-w-md px-4 sm:px-6">
         {/* Logo/Header Section */}
