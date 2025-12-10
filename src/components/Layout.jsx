@@ -6,7 +6,7 @@ import Footer from "./Footer";
 export default function Layout({ title, config }) {
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
-      <Sidebar config={config} />
+      <Sidebar  config={config} />
       <div className="flex flex-col flex-1 min-w-0">
         <Header title={title} />
         <main className="flex-1 overflow-auto">
