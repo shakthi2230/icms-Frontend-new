@@ -1,16 +1,25 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import Layout from "../../components/Layout";
 import { LogOut, LogIn } from "lucide-react";
 import useAdminStore from "../../context/AdminContext";
 
 function AdminLayout() {
-
-  const { logout, isAuthenticated } = useAdminStore();
+  const { logout } = useAdminStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const templogout = () => {
-    logout(); // This will set isAuthenticated to false and clear tokens
-    navigate("/admin-login"); // Navigate to admin login page
+    logout();
+    navigate("/admin-login");
+  };
+
+  const getPageTitle = () => {
+    if (location.pathname === "/admin-dashboard") return "Dashboard";
+    if (location.pathname.includes("add-company")) return "Company";
+    if (location.pathname.includes("create-user")) return "User";
+    if (location.pathname.includes("add-project")) return "Project";
+    if (location.pathname.includes("generate-report")) return "Generate Report";
+    return "Administrator Dashboard";
   };
 
   const adminConfig = {
@@ -28,7 +37,7 @@ function AdminLayout() {
   };
 
   return (
-    <Layout title="Administrator Dashboard" config={adminConfig}>
+    <Layout title={getPageTitle()} config={adminConfig}>
       <Outlet />
     </Layout>
   );
