@@ -4,7 +4,7 @@ import useUserStore from "../store/userStore";
 
 export default function UserModal({ isOpen, onClose, editingUser = null, onSuccess }) {
   const { addUser, updateUser } = useUserStore();
-  
+
   const [loading, setLoading] = useState(false);
 
   const roles = ['Employee', 'Project Manager', 'Technical Lead', 'Supervisor', 'Administrator', 'Analyst'];
@@ -67,53 +67,53 @@ export default function UserModal({ isOpen, onClose, editingUser = null, onSucce
 
   const validateForm = (isEditing = false) => {
     const requiredFields = [
-      'firstName', 'lastName', 'email', 'phone', 
+      'firstName', 'lastName', 'email', 'phone',
       'username', 'role', 'company', 'department'
     ];
-    
+
     const missingFields = requiredFields.filter(field => !formData[field]);
-    
+
     if (missingFields.length > 0) {
       if (onSuccess) onSuccess('All required fields must be filled', 'error');
       return false;
     }
-    
+
     if (!isEditing && (!formData.password || !formData.confirmPassword)) {
       if (onSuccess) onSuccess('Password fields are required for new users', 'error');
       return false;
     }
-    
+
     if (!isEditing && formData.password !== formData.confirmPassword) {
       if (onSuccess) onSuccess('Passwords do not match', 'error');
       return false;
     }
-    
+
     if (!isEditing && formData.password.length < 6) {
       if (onSuccess) onSuccess('Password must be at least 6 characters', 'error');
       return false;
     }
-    
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       if (onSuccess) onSuccess('Invalid email format', 'error');
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const isEditing = !!editingUser;
-    
+
     if (!validateForm(isEditing)) return;
 
     setLoading(true);
-    
+
     setTimeout(() => {
       try {
         const submissionData = { ...formData };
-        
+
         if (isEditing) {
           // Remove password fields when editing
           delete submissionData.password;
@@ -131,7 +131,7 @@ export default function UserModal({ isOpen, onClose, editingUser = null, onSucce
           onClose();
           setLoading(false);
         }, 1000);
-        
+
       } catch (error) {
         console.error('Error saving user:', error);
         if (onSuccess) onSuccess('Error saving user data', 'error');
@@ -144,6 +144,19 @@ export default function UserModal({ isOpen, onClose, editingUser = null, onSucce
     setFormData(initialFormData);
     onClose();
   };
+  const allRequiredFilled = () => {
+    const required = [
+      'firstName', 'lastName', 'email', 'phone',
+      'username', 'role', 'company', 'department'
+    ];
+
+    if (!editingUser) {
+      required.push('password', 'confirmPassword');
+    }
+
+    return required.every(field => formData[field] && formData[field].toString().trim() !== '');
+  };
+
 
   if (!isOpen) return null;
 
@@ -418,13 +431,18 @@ export default function UserModal({ isOpen, onClose, editingUser = null, onSucce
               type="button"
               onClick={handleSubmit}
               disabled={loading}
-              className="px-8 py-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 text-black font-semibold rounded-lg transition transform hover:scale-105 disabled:scale-100"
+              className={`px-8 py-2 font-semibold rounded-lg transition transform
+    ${allRequiredFilled()
+                  ? "bg-green-500 hover:bg-green-600 text-black hover:scale-105"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-black"}
+    disabled:bg-gray-500 disabled:scale-100`}
             >
-              {loading 
-                ? (editingUser ? 'Updating...' : 'Creating...') 
+              {loading
+                ? (editingUser ? 'Updating...' : 'Creating...')
                 : (editingUser ? 'Update User' : 'Create User')
               }
             </button>
+
           </div>
         </div>
       </div>

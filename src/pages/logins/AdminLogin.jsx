@@ -79,7 +79,7 @@ export default function AdminLogin() {
   }
 
   return (
-    <div className="flex items-center justify-center bg-gradient-to-br from-[#1E2A38] via-[#2a3a50] to-[#1E2A38] relative overflow-hidden p-3 min-h-screen">
+    <div className="flex items-center justify-center bg-[#2a3a50] relative overflow-hidden p-3 min-h-screen">
       <div className="relative z-10 w-full max-w-md">
         {/* Toggle Switch */}
         <div className="flex justify-center mb-8">

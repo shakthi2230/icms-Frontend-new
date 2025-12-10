@@ -4,7 +4,7 @@ import useCompanyStore from "../../../store/companyStore";
 
 export default function AddCompanyModal({ isOpen, onClose, editingCompany = null, onSuccess }) {
   const { addCompany, updateCompany } = useCompanyStore();
-  
+
   const [loading, setLoading] = useState(false);
 
   const initialFormData = {
@@ -68,48 +68,48 @@ export default function AddCompanyModal({ isOpen, onClose, editingCompany = null
 
   const validateForm = (isEditing = false) => {
     const requiredFields = [
-      'companyName', 'registrationNumber', 'email', 'phone', 
+      'companyName', 'registrationNumber', 'email', 'phone',
       'address', 'country', 'username', 'operatingArea', 'totalEmployees'
     ];
-    
+
     const missingFields = requiredFields.filter(field => !formData[field]);
-    
+
     if (missingFields.length > 0) {
       if (onSuccess) onSuccess('All required fields must be filled', 'error');
       return false;
     }
-    
+
     if (!isEditing && (!formData.password || !formData.confirmPassword)) {
       if (onSuccess) onSuccess('Password fields are required for new companies', 'error');
       return false;
     }
-    
+
     if (!isEditing && formData.password !== formData.confirmPassword) {
       if (onSuccess) onSuccess('Passwords do not match', 'error');
       return false;
     }
-    
+
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
       if (onSuccess) onSuccess('Invalid email format', 'error');
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     const isEditing = !!editingCompany;
-    
+
     if (!validateForm(isEditing)) return;
 
     setLoading(true);
-    
+
     setTimeout(() => {
       try {
         const submissionData = { ...formData };
-        
+
         if (isEditing) {
           delete submissionData.password;
           delete submissionData.confirmPassword;
@@ -125,7 +125,7 @@ export default function AddCompanyModal({ isOpen, onClose, editingCompany = null
           onClose();
           setLoading(false);
         }, 1000);
-        
+
       } catch (error) {
         console.error('Error saving company:', error);
         if (onSuccess) onSuccess('Error saving company data', 'error');
@@ -139,7 +139,23 @@ export default function AddCompanyModal({ isOpen, onClose, editingCompany = null
     onClose();
   };
 
+  const allRequiredFilled = () => {
+    const required = [
+      'companyName', 'registrationNumber', 'email', 'phone',
+      'address', 'country', 'username', 'operatingArea', 'totalEmployees'
+    ];
+
+    // For new company, password fields required too
+    if (!editingCompany) {
+      required.push('password', 'confirmPassword');
+    }
+
+    return required.every(field => formData[field] && formData[field].toString().trim() !== '');
+  };
+
   if (!isOpen) return null;
+
+
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -443,13 +459,18 @@ export default function AddCompanyModal({ isOpen, onClose, editingCompany = null
               type="button"
               onClick={handleSubmit}
               disabled={loading}
-              className="px-8 py-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 text-black font-semibold rounded-lg transition transform hover:scale-105 disabled:scale-100"
+              className={`px-8 py-2 font-semibold rounded-lg transition transform
+    ${allRequiredFilled()
+                  ? "bg-green-500 hover:bg-green-600 text-black hover:scale-105"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-black"}
+    disabled:bg-gray-500 disabled:scale-100`}
             >
-              {loading 
-                ? (editingCompany ? 'Updating...' : 'Registering...') 
+              {loading
+                ? (editingCompany ? 'Updating...' : 'Registering...')
                 : (editingCompany ? 'Update Company' : 'Register Company')
               }
             </button>
+
           </div>
         </div>
       </div>

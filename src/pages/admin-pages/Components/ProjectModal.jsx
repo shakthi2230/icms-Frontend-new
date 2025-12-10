@@ -6,7 +6,7 @@ import useCompanyStore from "../../../store/companyStore";
 export default function ProjectModal({ isOpen, onClose, editingProject = null, onSuccess }) {
   const { addProject, updateProject } = useProjectStore();
   const { companies } = useCompanyStore();
-  
+
   const [loading, setLoading] = useState(false);
   const [selectedCompany, setSelectedCompany] = useState('');
 
@@ -76,32 +76,32 @@ export default function ProjectModal({ isOpen, onClose, editingProject = null, o
 
   const validateForm = () => {
     const requiredFields = [
-      'projectName', 'projectCode', 'company', 'location', 
+      'projectName', 'projectCode', 'company', 'location',
       'startDate', 'endDate', 'budget', 'technicalLead', 'engineeringLead'
     ];
-    
+
     const missingFields = requiredFields.filter(field => !formData[field]);
-    
+
     if (missingFields.length > 0) {
       if (onSuccess) onSuccess('All required fields must be filled', 'error');
       return false;
     }
-    
+
     if (new Date(formData.startDate) >= new Date(formData.endDate)) {
       if (onSuccess) onSuccess('End date must be after start date', 'error');
       return false;
     }
-    
+
     return true;
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!validateForm()) return;
 
     setLoading(true);
-    
+
     setTimeout(() => {
       try {
         if (editingProject) {
@@ -117,7 +117,7 @@ export default function ProjectModal({ isOpen, onClose, editingProject = null, o
           onClose();
           setLoading(false);
         }, 1000);
-        
+
       } catch (error) {
         console.error('Error saving project:', error);
         if (onSuccess) onSuccess('Error saving project data', 'error');
@@ -131,6 +131,15 @@ export default function ProjectModal({ isOpen, onClose, editingProject = null, o
     setSelectedCompany('');
     onClose();
   };
+  const allRequiredFilled = () => {
+    const required = [
+      'projectName', 'projectCode', 'company', 'location',
+      'startDate', 'endDate', 'budget', 'technicalLead', 'engineeringLead'
+    ];
+
+    return required.every(field => formData[field] && formData[field].toString().trim() !== '');
+  };
+
 
   if (!isOpen) return null;
 
@@ -419,13 +428,18 @@ export default function ProjectModal({ isOpen, onClose, editingProject = null, o
               type="button"
               onClick={handleSubmit}
               disabled={loading}
-              className="px-8 py-2 bg-yellow-500 hover:bg-yellow-600 disabled:bg-yellow-400 text-black font-semibold rounded-lg transition transform hover:scale-105 disabled:scale-100"
+              className={`px-8 py-2 font-semibold rounded-lg transition transform
+    ${allRequiredFilled()
+                  ? "bg-green-500 hover:bg-green-600 text-black hover:scale-105"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-black"}
+    disabled:bg-gray-500 disabled:scale-100`}
             >
-              {loading 
-                ? (editingProject ? 'Updating...' : 'Creating...') 
+              {loading
+                ? (editingProject ? 'Updating...' : 'Creating...')
                 : (editingProject ? 'Update Project' : 'Create Project')
               }
             </button>
+
           </div>
         </div>
       </div>
