@@ -1,97 +1,146 @@
+// src/components/Sidebar.jsx
 import { ArrowLeft } from "lucide-react";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useNavigate, useLocation, NavLink } from "react-router-dom";
+import { useState, useEffect } from "react";
 import LogoArea from "./LogoArea";
 
 export default function Sidebar({ config }) {
-  const { logo, menuItems, footerItems } = config;
+  const { logo, menuItems = [], footerItems = [] } = config;
   const navigate = useNavigate();
   const location = useLocation();
 
   return (
-    <div className="h-screen w-88 bg-[#1E2A38] text-yellow-400 flex flex-col flex-shrink-0">
-
+    <div className="h-screen w-auto bg-[#1E2A38] text-yellow-400 flex flex-col flex-shrink-0">
       <LogoArea logo={logo} />
 
-      <div className="px-3 flex items-center h-14 border-b border-gray-700">
+      {/* Back Button */}
+      <div className="px-4 h-14 flex items-center border-b border-gray-700">
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-1 p-2 rounded-lg hover:bg-gray-700 transition-colors"
+          className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm font-medium"
         >
-          <ArrowLeft size={20} className="text-yellow-400" />
-          <span>Back</span>
+          <ArrowLeft size={18} />
+          Back
         </button>
       </div>
 
-      {/* Tree Menu */}
-      <div className="flex flex-col flex-1 mt-4 gap-3 px-3 text-xs sm:text-sm overflow-y-auto">
-        {menuItems.map((item, idx) => (
-          <TreeItem key={idx} item={item} level={0} />
+      {/* Scrollable Menu */}
+      <nav className="flex-1 overflow-y-auto py-4 px-3">
+        {menuItems.map((item, index) => (
+          <TreeItem key={index} item={item} currentPath={location.pathname} />
         ))}
-      </div>
+      </nav>
 
-      {/* Footer */}
-      <div className="flex items-center gap-2 px-3 py-2 border-t border-gray-700 cursor-pointer">
-        {footerItems.map((item, idx) => {
-          const Icon = item.icon;
-          return (
-            <a
-              key={idx}
-              onClick={item.onClick}
-              href={item.href}
-              className="flex items-center gap-1 hover:text-white transition-colors"
-            >
-              <Icon size={16} />
-              <span>{item.label}</span>
-            </a>
-          );
-        })}
+      {/* Logout Footer */}
+      <div className="border-t border-gray-700 p-4">
+        {footerItems.map((item, i) => (
+          <button
+            key={i}
+            onClick={() => navigate(item.href)}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm hover:text-white"
+          >
+            <item.icon size={18} />
+            <span>{item.label}</span>
+          </button>
+        ))}
       </div>
     </div>
   );
 }
 
-function TreeItem({ item, level }) {
-  const [open, setOpen] = useState(false);
-  const Icon = item.icon;
+// Recursive Tree Menu Component
+function TreeItem({ item, currentPath, level = 0 }) {
+  const navigate = useNavigate();
+  const hasSubItems = item.subItems && item.subItems.length > 0;
+  const hasChildren = item.children && item.children.length > 0;
+  const hasAnyChildren = hasSubItems || hasChildren;
 
-  const toggle = () => {
-    if (item.subItems || item.children) setOpen(!open);
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Auto-expand if current route is inside this item
+  useEffect(() => {
+    const pathsToCheck = [];
+
+    if (item.href) pathsToCheck.push(item.href);
+    if (hasSubItems) item.subItems.forEach(s => s.href && pathsToCheck.push(s.href));
+    if (hasChildren) item.children.forEach(c => c.href && pathsToCheck.push(c.href));
+
+    if (pathsToCheck.some(path => currentPath.startsWith(path))) {
+      setIsOpen(true);
+    }
+  }, [currentPath, item, hasSubItems, hasChildren]);
+
+  const Icon = item.icon || (() => <div className="w-5 h-5" />);
+
+  const handleClick = (e) => {
+    if (hasAnyChildren) {
+      e.preventDefault();
+      setIsOpen(!isOpen);
+    }
+    // If no children → let NavLink handle navigation
   };
 
-  return (
-    <div className="flex flex-col ">
-      {/* MAIN ROW */}
-      <div
-        onClick={toggle}
-        className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors"
-        style={{ marginLeft: level * 16 }}
-      >
-        <Icon size={16} />
-        <span>{item.label}</span>
-      </div>
+  const isActive = item.href && currentPath.startsWith(item.href);
 
-      {/* SUB ITEMS */}
-      {open && item.subItems && (
-        <div className="ml-5 mt-2 flex flex-col">
-          {item.subItems.map((sub, idx) => (
-            <TreeItem key={idx} item={sub} level={level + 1} />
-          ))}
+  return (
+    <div className="mb-1">
+      {/* Main Item */}
+      {item.href ? (
+        <NavLink
+          to={item.href}
+          end={!hasAnyChildren} // exact only if no children
+          onClick={handleClick}
+          className={`flex items-center justify-between px-4 py-2.5 rounded-lg transition-all group
+            ${isActive ? "bg-yellow-500/20 text-white font-semibold" : "hover:bg-gray-700"}
+          `}
+          style={{ paddingLeft: `${level * 24 + 16}px` }}
+        >
+          <div className="flex items-center gap-3">
+            <Icon size={18} className={isActive ? "text-yellow-400" : ""} />
+            <span className="text-sm">{item.label}</span>
+          </div>
+
+          {hasAnyChildren && (
+            <svg
+              className={`w-4 h-4 transition-transform duration-200 ${isOpen ? "rotate-90" : ""}`}
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          )}
+        </NavLink>
+      ) : (
+        <div
+          onClick={() => setIsOpen(!isOpen)}
+          className="flex items-center justify-between px-4 py-2.5 rounded-lg hover:bg-gray-700 cursor-pointer"
+          style={{ paddingLeft: `${level * 24 + 16}px` }}
+        >
+          <div className="flex items-center gap-3">
+            <Icon size={18} />
+            <span className="text-sm">{item.label}</span>
+          </div>
+          {hasAnyChildren && (
+            <svg className={`w-4 h-4 transition-transform ${isOpen ? "rotate-90" : ""}`} viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path d="m9 18 6-6-6-6" />
+            </svg>
+          )}
         </div>
       )}
 
-      {/* CHILDREN */}
-      {open && item.children && (
-        <div className="my-2 ml-5 flex flex-col">
-          {item.children.map((child, idx) => (
-            <div
-              key={idx}
-              className="flex items-center p-1 gap-2 hover:text-white transition-colors"
-              style={{ marginLeft: (level + 1) * 16 }}
-            >
-              <child.icon size={16} />
-              <span>{child.label}</span>
-            </div>
+      {/* Submenu - only render when open */}
+      {isOpen && (
+        <div className="mt-1">
+          {/* Render subItems (like "2 - HULL AND STRUCTURE") */}
+          {item.subItems?.map((sub, i) => (
+            <TreeItem key={i} item={sub} currentPath={currentPath} level={level + 1} />
+          ))}
+
+          {/* Render children (like "201 - HULL MATERIALS") */}
+          {item.children?.map((child, i) => (
+            <TreeItem key={i} item={child} currentPath={currentPath} level={level + 1} />
           ))}
         </div>
       )}

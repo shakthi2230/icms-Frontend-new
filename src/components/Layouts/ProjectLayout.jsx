@@ -14,18 +14,18 @@ function ProjectLayout({ title, type = "dashboard" }) {
       config.menuItems = [
         {
           label: "Check Lists and Certificates",
-          icon: LogIn,
+          icon: LogIn,          // Replaces P.png
           href: "/checklist-certificates",
           subItems: [
             {
               label: "1 - GENERAL",
-              icon: LogIn,
+              icon: LogIn,       // Replaces S-black
               href: "/checklist/general",
               children: []
             },
             {
               label: "2 - HULL AND STRUCTURE",
-              icon: LogIn,
+              icon: LogIn,       // Replaces S-green
               href: "/checklist/hull",
               children: [
                 { label: "201 - HULL MATERIALS", icon: LogIn, href: "/checklist/hull/201" },
@@ -47,16 +47,16 @@ function ProjectLayout({ title, type = "dashboard" }) {
               icon: LogIn,
               href: "/checklist/cargo",
               children: [
-                { label: "324 - BULLDOZERS, MECHANICAL SHOVELS, TRUCKS", icon: LogIn, href: "/checklist/cargo/324" },
-                { label: "331 - ROTATING CRANES W/CRANE PILLARS", icon: LogIn, href: "/checklist/cargo/331" },
-                { label: "351 - LOADING/DISCHARGING PUMPS", icon: LogIn, href: "/checklist/cargo/351" },
-                { label: "352 - LOADING/DISCHARGING SYSTEMS ON DECK", icon: LogIn, href: "/checklist/cargo/352" },
-                { label: "353 - LOADING/DISCHARGING SYSTEMS IN PUMPROOMS", icon: LogIn, href: "/checklist/cargo/353" },
-                { label: "358 - STL FLUID TRANSFER SYSTEM", icon: LogIn, href: "/checklist/cargo/358" },
-                { label: "365 - INDIRECT COOLING/HEATING SYSTEMS, CARGO", icon: LogIn, href: "/checklist/cargo/365" },
-                { label: "376 - INERT GAS SYSTEMS W/CONDITIONING PLANTS", icon: LogIn, href: "/checklist/cargo/376" },
-                { label: "381 - SOUNDING, SURVEIL. AND OPERATING EQUIP.", icon: LogIn, href: "/checklist/cargo/381" },
-                { label: "382 - TANK CLEANING SYSTEMS AND EQUIPMENT", icon: LogIn, href: "/checklist/cargo/382" },
+                { label: "324 - BULLDOZERS, MECHANICAL SHOVELS, TRUCKS", href: "/checklist/cargo/324" },
+                { label: "331 - ROTATING CRANES W/CRANE PILLARS", href: "/checklist/cargo/331" },
+                { label: "351 - LOADING/DISCHARGING PUMPS", href: "/checklist/cargo/351" },
+                { label: "352 - LOADING/DISCHARGING SYSTEMS ON DECK", href: "/checklist/cargo/352" },
+                { label: "353 - LOADING/DISCHARGING SYSTEMS IN PUMPROOMS", href: "/checklist/cargo/353" },
+                { label: "358 - STL FLUID TRANSFER SYSTEM", href: "/checklist/cargo/358" },
+                { label: "365 - INDIRECT COOLING/HEATING SYSTEMS, CARGO", href: "/checklist/cargo/365" },
+                { label: "376 - INERT GAS SYSTEMS W/CONDITIONING PLANTS", href: "/checklist/cargo/376" },
+                { label: "381 - SOUNDING, SURVEIL. AND OPERATING EQUIP.", href: "/checklist/cargo/381" },
+                { label: "382 - TANK CLEANING SYSTEMS AND EQUIPMENT", href: "/checklist/cargo/382" }
               ]
             },
             {
