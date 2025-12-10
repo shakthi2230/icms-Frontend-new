@@ -11,6 +11,8 @@ import ImportsReports from "../pages/project-pages/completion-structure/ImportsR
 import PunchItems from "../pages/project-pages/completion-structure/PunchItems";
 import TagRegister from "../pages/project-pages/completion-structure/TagRegister";
 import COMMregister from "../pages/project-pages/completion-structure/COMMregister";
+import SystemStructure2 from "../pages/project-pages/blank";
+
 
 export const projectRoutes = [
   ...[
@@ -18,6 +20,7 @@ export const projectRoutes = [
     { path: "/checklist-certificates", title: "Check Lists and Certificates", type: "checklist", component: CheckListandCertificates },
     { path: "/contractors", title: "Contractors", type: "checklist", component: Contractors },
     { path: "/SystemStructure", title: "System Structure", type: "checklist", component: SystemStructure },
+    { path: "/workingpage", title: "System Structure2", type: "checklist", component: SystemStructure2 },
     { path: "/completionStructure", title: "Completion Structure", type: "completion", component: CompletionStructure },
     { path: "/checklist", title: "Check Lists", type: "completion", component: CheckList },
     { path: "/imports-reports", title: "Imports & Reports", type: "completion", component: ImportsReports },

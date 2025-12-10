@@ -10,7 +10,7 @@ export default function Sidebar({ config }) {
   const location = useLocation();
 
   return (
-    <div className="h-screen w-auto bg-[#1E2A38] text-yellow-400 flex flex-col flex-shrink-0">
+    <div className="h-screen min-w-60 w-auto max-w-full bg-[#1E2A38] text-yellow-400 flex flex-col flex-shrink-0">
       <LogoArea logo={logo} />
 
       {/* Back Button */}

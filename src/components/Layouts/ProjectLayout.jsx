@@ -20,49 +20,49 @@ function ProjectLayout({ title, type = "dashboard" }) {
             {
               label: "1 - GENERAL",
               icon: LogIn,       // Replaces S-black
-              href: "/checklist/general",
+              href: "/workingpage",
               children: []
             },
             {
               label: "2 - HULL AND STRUCTURE",
               icon: LogIn,       // Replaces S-green
-              href: "/checklist/hull",
+              href: "/workingpage",
               children: [
-                { label: "201 - HULL MATERIALS", icon: LogIn, href: "/checklist/hull/201" },
-                { label: "247 - STL Compartment and Cone", icon: LogIn, href: "/checklist/hull/247" },
-                { label: "249 - STL Buoy", icon: LogIn, href: "/checklist/hull/249" },
-                { label: "262 - BOTTOM PLUGS, SEA CHESTS...", icon: LogIn, href: "/checklist/hull/262" },
-                { label: "278 - EXTERNAL CATHODIC PROTECTION", icon: LogIn, href: "/checklist/hull/278" },
-                { label: "281 - ACCOMMODATION, DECK HOUSES...", icon: LogIn, href: "/checklist/hull/281" },
-                { label: "282 - ENGINE, BOILER AND PUMP ROOMS", icon: LogIn, href: "/checklist/hull/282" },
-                { label: "284 - CARGO TANKS", icon: LogIn, href: "/checklist/hull/284" },
-                { label: "285 - BALLAST, SEA W.", icon: LogIn, href: "/checklist/hull/285" },
-                { label: "286 - FRESH WATER TANKS", icon: LogIn, href: "/checklist/hull/286" },
-                { label: "287 - FUEL OIL AND LUBE TANKS", icon: LogIn, href: "/checklist/hull/287" },
-                { label: "288 - INTERNAL CATHODIC PROTECTION", icon: LogIn, href: "/checklist/hull/288" },
+                { label: "201 - HULL MATERIALS", icon: LogIn, href: "/workingpage" },
+                { label: "247 - STL Compartment and Cone", icon: LogIn, href: "/workingpage" },
+                { label: "249 - STL Buoy", icon: LogIn, href: "/workingpage" },
+                { label: "262 - BOTTOM PLUGS, SEA CHESTS...", icon: LogIn, href: "/workingpage" },
+                { label: "278 - EXTERNAL CATHODIC PROTECTION", icon: LogIn, href: "/workingpage" },
+                { label: "281 - ACCOMMODATION, DECK HOUSES...", icon: LogIn, href: "/workingpage" },
+                { label: "282 - ENGINE, BOILER AND PUMP ROOMS", icon: LogIn, href: "/workingpage" },
+                { label: "284 - CARGO TANKS", icon: LogIn, href: "/workingpage" },
+                { label: "285 - BALLAST, SEA W.", icon: LogIn, href: "/workingpage" },
+                { label: "286 - FRESH WATER TANKS", icon: LogIn, href: "/workingpage" },
+                { label: "287 - FUEL OIL AND LUBE TANKS", icon: LogIn, href: "/workingpage" },
+                { label: "288 - INTERNAL CATHODIC PROTECTION", icon: LogIn, href: "/workingpage" },
               ]
             },
             {
               label: "3 - EQUIPMENT FOR CARGO",
               icon: LogIn,
-              href: "/checklist/cargo",
+              href: "/workingpage",
               children: [
-                { label: "324 - BULLDOZERS, MECHANICAL SHOVELS, TRUCKS", href: "/checklist/cargo/324" },
-                { label: "331 - ROTATING CRANES W/CRANE PILLARS", href: "/checklist/cargo/331" },
-                { label: "351 - LOADING/DISCHARGING PUMPS", href: "/checklist/cargo/351" },
-                { label: "352 - LOADING/DISCHARGING SYSTEMS ON DECK", href: "/checklist/cargo/352" },
-                { label: "353 - LOADING/DISCHARGING SYSTEMS IN PUMPROOMS", href: "/checklist/cargo/353" },
-                { label: "358 - STL FLUID TRANSFER SYSTEM", href: "/checklist/cargo/358" },
-                { label: "365 - INDIRECT COOLING/HEATING SYSTEMS, CARGO", href: "/checklist/cargo/365" },
-                { label: "376 - INERT GAS SYSTEMS W/CONDITIONING PLANTS", href: "/checklist/cargo/376" },
-                { label: "381 - SOUNDING, SURVEIL. AND OPERATING EQUIP.", href: "/checklist/cargo/381" },
-                { label: "382 - TANK CLEANING SYSTEMS AND EQUIPMENT", href: "/checklist/cargo/382" }
+                { label: "324 - BULLDOZERS, MECHANICAL SHOVELS, TRUCKS", href: "/workingpage" },
+                { label: "331 - ROTATING CRANES W/CRANE PILLARS", href: "/workingpage" },
+                { label: "351 - LOADING/DISCHARGING PUMPS", href: "/workingpage" },
+                { label: "352 - LOADING/DISCHARGING SYSTEMS ON DECK", href: "/workingpage" },
+                { label: "353 - LOADING/DISCHARGING SYSTEMS IN PUMPROOMS", href: "/workingpage" },
+                { label: "358 - STL FLUID TRANSFER SYSTEM", href: "/workingpage" },
+                { label: "365 - INDIRECT COOLING/HEATING SYSTEMS, CARGO", href: "/workingpage" },
+                { label: "376 - INERT GAS SYSTEMS W/CONDITIONING PLANTS", href: "/workingpage" },
+                { label: "381 - SOUNDING, SURVEIL. AND OPERATING EQUIP.", href: "/workingpage" },
+                { label: "382 - TANK CLEANING SYSTEMS AND EQUIPMENT", href: "/workingpage" }
               ]
             },
             {
               label: "4 - SHIP EQUIPMENT",
               icon: LogIn,
-              href: "/checklist/ship-equipment",
+              href: "/workingpage",
               children: []
             }
           ]
