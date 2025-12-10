@@ -63,7 +63,9 @@ function ProjectLayout({ title, type = "dashboard" }) {
               label: "4 - SHIP EQUIPMENT",
               icon: LogIn,
               href: "/workingpage",
-              children: []
+              children: [
+                 { label: "404 - SIDE THRUSTERS", href: "/workingpage" },
+              ]
             }
           ]
         },
