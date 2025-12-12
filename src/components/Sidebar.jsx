@@ -36,7 +36,7 @@ export default function Sidebar({ config }) {
         {footerItems.map((item, i) => (
           <button
             key={i}
-            onClick={() => navigate(item.href)}
+            onClick={() => navigate(item.onClick ? item.onClick() : "#")}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-700 transition-colors text-sm hover:text-white"
           >
             <item.icon size={18} />
@@ -77,18 +77,18 @@ function TreeItem({ item, currentPath, level = 0 }) {
       e.preventDefault();
       setIsOpen(!isOpen);
     }
-    // If no children → let NavLink handle navigation
+   
   };
 
   const isActive = item.href && currentPath.startsWith(item.href);
 
   return (
     <div className="mb-1">
-      {/* Main Item */}
+     
       {item.href ? (
         <NavLink
           to={item.href}
-          end={!hasAnyChildren} // exact only if no children
+          end={!hasAnyChildren}
           onClick={handleClick}
           className={`flex items-center justify-between px-4 py-2.5 rounded-lg transition-all group
             ${isActive ? "bg-yellow-500/20 text-white font-semibold" : "hover:bg-gray-700"}

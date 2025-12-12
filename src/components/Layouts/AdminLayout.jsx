@@ -32,8 +32,9 @@ function AdminLayout() {
       { label: "Generate Report", icon: LogIn, href: "/admin-dashboard/generate-report" },
     ],
     footerItems: [
-      { label: "Logout", icon: LogOut, onClick: () => templogout() }
+      { label: "Logout", icon: LogOut, onClick: templogout },
     ],
+
   };
 
   return (
